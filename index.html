@@ -1,52 +1,22 @@
 <html>
 <head>
-    <style>
-        body {
-            background: #314c73;
-        }
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
-        .trio, .quartet {
-            display: flex;
-        }
-        .event {
-            background: gray;
-            box-shadow: inset 0 0 5px 1px black;
-            flex: 1;
-            padding: 2px 6px;
-            margin: 3px;
-            border-radius: 5px;
-        }
-        .event div:first-child {
-            font-size: 20px;
-        }
-        .event div:last-child {
-            font-size: 16px;
-        }
-        .event img {
-            width: 16px;
-            vertical-align: top;
-            margin-right: 5px;
-        }
-        .active {
-            background: white;
-            box-shadow: 0 0 5px 1px black;
-        }
-    </style>
+    <title>SGM Schedule</title>
+    <link rel="stylesheet" href="index.css">
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript" src="./index.js"></script>
 </head>
 <body>
     <div class="container">
-        All content comes from my <a href="https://docs.google.com/spreadsheets/d/1hpmUc__uYo0-tq10tampy7CDIfALn6N5_sMELTBlTOs/edit#gid=814198727">SGM Score Cutoffs</a> sheet. Click the link to see more historical scores and 
-        <div class="trio">
+        All content comes from my <a href="https://docs.google.com/spreadsheets/d/1hpmUc__uYo0-tq10tampy7CDIfALn6N5_sMELTBlTOs/edit#gid=814198727">SGM Score Cutoffs</a> sheet.
+        Click the link to see more historical scores and stuff.
+        <br>
+        Timing data is manually entered based on past PFs; future schedule changes may not be accurately reflected here.
+        <div class="flex">
             <div class="event" id="dail"></div>
             <div class="event" id="rift"></div>
             <div class="event" id="holi"></div>
         </div>
-        <div class="quartet">
+        <div class="flex">
             <div class="event" id="char"></div>
             <div class="event" id="elem"></div>
             <div class="event" id="medi"></div>
@@ -54,71 +24,70 @@
         </div>
         <div id="chart_div" style="width:1000; height:500"></div>
 
-        <h1>SGM Resources</h1>
-        <h2>Krazete's Websites</h2>
-        <div class="section">
-            <div class="item">
-                <img src="../sgm/image/preview.png">
+        <h1>Resources</h1>
+        <h2>Websites</h2>
+        <div class="flex">
+            <div class="event">
                 <a href="https://krazete.github.io/sgm">SGM Gallery</a>
             </div>
-            <div class="item">
+            <div class="event">
                 <a href="https://krazete.github.io/sgmcard">SGM Card Creator</a>
             </div>
-            <div class="item">
+            <div class="event">
                 <a href="https://krazete.github.io/sgmpalette">SGM Palette Editor</a>
             </div>
-            <div class="item">
+            <div class="event">
                 <a href="https://krazete.github.io/sgmtree">SGM Tree Calculator</a>
             </div>
         </div>
-        <h2>Krazete's Spreadsheets</h2>
-        <div class="section">
-            <div class="item">
+        <h2>Spreadsheets</h2>
+        <div class="flex">
+            <div class="event">
                 <a href="">Prize Fight and Rift Cutoffs</a>
             </div>
-            <div class="item">
+            <div class="event">
                 <a href="">Fighter Score Analysis</a>
             </div>
-            <div class="item">
+            <div class="event">
                 <a href="">Prize Fight Score Analysis</a>
             </div>
-            <div class="item">
+            <div class="event">
                 <a href="">Experience Threshholds</a>
             </div>
-            <div class="item">
+            <div class="event">
                 <a href="">Skill Tree Costs</a>
             </div>
         </div>
         <h2>Other People's Stuff</h2>
-        <div class="section">
-            <div class="item">
-                <a href="">Tier List</a>
+        <div class="flex">
+            <div class="event">
+                <a href="">LJ Tier List</a>
             </div>
         </div>
-        <h2>Official Stuff</h2>
-        <div class="section">
-            <div class="item">
+        <h2>Official</h2>
+        <div class="flex">
+            <div class="event">
                 <a href="https://discordapp.com/invite/skullgirls">Discord</a>
             </div>
-            <div class="item">
+            <div class="event">
                 <a href="https://skullgirlsmobile.com/">Official Site</a>
             </div>
-            <div class="item">
+            <div class="event">
                 <a href="https://instagram.com/skullgirlsmobile">Instagram</a>
             </div>
-            <div class="item">
+            <div class="event">
                 <a href="https://twitter.com/sgmobile">Twitter</a>
             </div>
-            <div class="item">
+            <div class="event">
                 <a href="https://facebook.com/skullgirlsmobile">Facebook</a>
             </div>
-            <div class="item">
+            <div class="event">
                 <a href="https://skullgirlsmobile.fandom.com">Wikia</a>
             </div>
-            <div class="item">
+            <div class="event">
                 <a href="https://forum.skullgirlsmobile.com">Forum</a>
             </div>
-            <div class="item">
+            <div class="event">
                 <a href="https://youtube.com/@SkullgirlsMobile">YouTube</a>
             </div>
         </div>
