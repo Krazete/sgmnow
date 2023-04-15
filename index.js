@@ -1,11 +1,12 @@
 var events = [
-    {"id": "rift", "q":  "now!A3:Z13", "row":  1, "c": 26},
-    {"id": "char", "q": "now!A14:Z24", "row": 12, "c": 26},
-    {"id": "elem", "q": "now!A25:Z35", "row": 23, "c": 26},
-    {"id": "medi", "q": "now!A36:Z46", "row": 34, "c": 26},
-    {"id": "smym", "q": "now!A47:Z57", "row": 45, "c": 26},
-    {"id": "holi", "q": "now!A58:Z68", "row": 56, "c": 26}
+    {"id": "rift", "q":  "now!B3:M13", "row":  1, "c": 26},
+    {"id": "char", "q": "now!B14:M24", "row": 12, "c": 26},
+    {"id": "elem", "q": "now!B25:E35", "row": 23, "c": 26},
+    {"id": "medi", "q": "now!B36:D46", "row": 34, "c": 26},
+    {"id": "smym", "q": "now!B47:E57", "row": 45, "c": 26},
+    {"id": "holi", "q": "now!B58:G68", "row": 56, "c": 26}
 ];
+var data, options;
 
 google.charts.load("current", {"packages": ["corechart"]});
 google.charts.setOnLoadCallback(checkNow);
@@ -35,17 +36,23 @@ function sendQuery(q, f) {
     });
 }
 
+function redraw() {
+    var element = document.getElementById("chart");
+    var chart = new google.visualization.LineChart(element);
+    chart.draw(data, options);
+}
+
 function drawChartRift() {
-    sendQuery("now!B3:T13", function (data) { // todo: should be B3:U13
+    sendQuery("now!B3:T13", function (d) { // todo: should be B3:U13
     // sendQuery("now!B14:Z24", function (data) {
-        var element = document.getElementById("chart_div");
-        var chart = new google.visualization.LineChart(element);
-        chart.draw(data, {
+        data = d;
+        options = {
             title: "Rift",
             backgroundColor: "transparent",
             hAxis: {title: 'Date'},
             vAxis: {title: 'Score', viewWindow: {min: 900}}
-        });
+        };
+        redraw();
     });
 }
 
@@ -97,3 +104,5 @@ function checkNow() {
     });
     drawChartRift();
 }
+
+window.addEventListener("resize", redraw);
