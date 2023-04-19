@@ -1,4 +1,5 @@
 body {
+    font-family: 'Trebuchet MS', sans-serif;
     background: #314c73;
 }
 .container {
@@ -9,30 +10,61 @@ body {
     display: flex;
 }
 .event {
-    background: gray;
+    background: grey;
     box-shadow: inset 0 0 5px 1px black;
+    text-align: center;
+    min-height: 40px;
     flex: 1;
     padding: 2px 6px;
     margin: 3px;
     border-radius: 5px;
 }
-.event div:first-child {
+.event > div:first-child {
     font-size: 20px;
 }
-.event div:last-child {
+.event > div:last-child {
     font-size: 16px;
 }
+.event > div:last-child div {
+    display: inline-block;
+    margin: 0 5px;
+}
 .event img {
-    width: 16px;
-    vertical-align: top;
+    width: 20px;
+    vertical-align: text-bottom;
     margin-right: 5px;
 }
 .active {
-    background: white;
+    background: #d0ffd0;
     box-shadow: 0 0 5px 1px black;
 }
 
 #chart {
     width: 100%;
     height: 300px;
+}
+
+.loading {
+    background: linear-gradient(to right, grey 20%, white 40%, grey);
+    background-size: 20%;
+    box-shadow: none;
+    animation: tread 1s linear infinite;
+}
+.loading:after {
+    content: 'Loading';
+    font-family: monospace;
+}
+
+@keyframes tread {
+    0% {background-position: 0%;}
+    100% {background-position: 25%;}
+}
+
+.error {
+    background: black;
+}
+.error:after {
+    content: 'Error';
+    font-family: monospace;
+    color: white;
 }
