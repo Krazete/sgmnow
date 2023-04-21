@@ -1,19 +1,22 @@
 var events = {
-    "rift": {"range":  "B3:M13", "row":  1},
-    "char": {"range": "B14:M24", "row": 12},
-    "elem": {"range": "B25:E35", "row": 23},
-    "medi": {"range": "B36:D46", "row": 34},
-    "smym": {"range": "B47:E57", "row": 45},
-    "holi": {"range": "B58:G68", "row": 56}
+    "rift": {"row":  1, "range": "B3:B13,F3:M13", "data": false, "min": 0},
+    "char": {"row": 12, "range": "B14:B24,E14:F24,K14:L24", "data": false, "min": 0},
+    "elem": {"row": 23, "range": "B25:B35,D25:F35", "data": false, "min": 0},
+    "medi": {"row": 34, "range": "B36:B46,D36:D46", "data": false, "min": 0},
+    "smym": {"row": 45, "range": "B47:B57,D47:E57", "data": false, "min": 0},
+    "holi": {"row": 56, "range": "B58:B68,D58:H68", "data": false, "min": 0}
 };
-var data, options;
+var ce;
 
 google.charts.load("current", {"packages": ["corechart"]});
 google.charts.setOnLoadCallback(checkNow);
 
 function sendQuery(q, f, ids) {
     var elements = ids.map(id => document.getElementById(id));
-    elements.forEach(e => e.classList.add("loading"));
+    elements.forEach(e => {
+        e.innerHTML = "";
+        e.classList.add("loading");
+    });
 
     var sheetID = "1hpmUc__uYo0-tq10tampy7CDIfALn6N5_sMELTBlTOs";
     var pageName = "now";
@@ -54,6 +57,14 @@ function sendQuery(q, f, ids) {
     });
 }
 
+/* Events */
+
+function getIcon(name) {
+    var img = new Image();
+    img.src = "https://krazete.github.io/sgm/image/official/" + name + ".png";
+    return img;
+}
+
 function setEvent(id, title, contents, active) {
     var box = document.getElementById(id);
 
@@ -65,14 +76,12 @@ function setEvent(id, title, contents, active) {
     for (var content of contents) {
         var boxContent = document.createElement("div");
         if (id == "dail" || id == "char") {
-            var img = new Image();
-            img.src = "https://krazete.github.io/sgm/image/official/" + content.replace(/-F/, "f").replace(/\s|\./g, "") + "_MasteryIcon.png";
-            boxContent.appendChild(img);
+            var fn = content.replace(/-F/, "f").replace(/\s|\./g, "") + "_MasteryIcon";
+            boxContent.appendChild(getIcon(fn));
         }
         else if (id == "rift" || id == "elem") {
-            var img = new Image();
-            img.src = "https://krazete.github.io/sgm/image/official/ElementalIcon" + content + ".png";
-            boxContent.appendChild(img);
+            var fn = "ElementalIcon" + content;
+            boxContent.appendChild(getIcon(fn));
         }
         boxContent.innerHTML += content;
         boxContents.appendChild(boxContent);
@@ -113,32 +122,65 @@ function checkNow() {
         }
         var datenow = new Date(data.getValue(0, 0) + "-17:00");
         sheetTime.innerHTML = "Sheet last updated on " + datenow;
-    }, ["rift", "char", "elem", "medi", "smym", "holi"]);
+    }, Object.keys(events));
 }
+
+/* Charts */
 
 function redraw() {
     var element = document.getElementById("chart");
     var chart = new google.visualization.LineChart(element);
-    chart.draw(data, options);
-}
-
-function drawChartRift() {
-    sendQuery(events.rift.q, function (d) { // todo: should be B3:U13
-    // sendQuery("now!B14:Z24", function (data) {
-        data = d;
-        options = {
-            title: "Rift",
-            backgroundColor: "transparent",
-            hAxis: {title: 'Date'},
-            vAxis: {title: 'Score', viewWindow: {min: 900}}
-        };
-        redraw();
+    if (events[ce].data.getNumberOfRows() <= 1) {
+        chart = new google.visualization.ColumnChart(element);
+    }
+    chart.draw(events[ce].data, {
+        title: ce,
+        titleTextStyle: {color: "pink"},
+        hAxis: {title: 'Date', titleTextStyle: {color: "pink"}, textStyle: {color: "white"}},
+        vAxis: {title: 'Score', titleTextStyle: {color: "pink"}, textStyle: {color: "white"}, viewWindow: {min: events[ce].min}},
+        legend: {textStyle: {color: "white"}},
+        backgroundColor: "transparent",
+        colors: ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]
     });
 }
 
-function openChart(id) {
-    var chartArea = 0;
-    var box = document.getElementById("chart-time");
+function checkChart(id) {
+    console.log(id);
+    if (events[id].data) {
+        ce = id;
+        redraw(id);
+    }
+    else {
+        sendQuery(events[id].range, function (data) {
+            for (var i = 0; i < data.getNumberOfColumns(); i++) {
+                var typ = data.getColumnType(i);
+                if (typ != "date" && typ != "number") {
+                    data.removeColumn(i);
+                    i--;
+                }
+            }
+            console.log(data);
+            events[id].data = data;
+            checkChart(id);
+        }, ["chart"]);
+    }
 }
 
+/* Listeners */
+
+function onClick(e) {
+    if (typeof e.target !== "undefined") {
+        e = e.target;
+    }
+    if (Object.keys(events).includes(e.id)) {
+        if (!e.classList.contains("loading") && !e.classList.contains("error")) {
+            checkChart(e.id);
+        }
+    }
+    else if (e !== document.body) {
+        onClick(e.parentElement);
+    }
+}
+
+window.addEventListener("click", onClick);
 window.addEventListener("resize", redraw);

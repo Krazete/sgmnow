@@ -1,25 +1,42 @@
 body {
     font-family: 'Trebuchet MS', sans-serif;
     background: #314c73;
+    color: white;
 }
+
+a {
+    color: cyan;
+}
+a:visited {
+    color: skyblue;
+}
+
 .container {
     max-width: 900px;
     margin: auto;
 }
+
 .flex {
     display: flex;
     flex-wrap: wrap;
 }
+.flex > * {
+    flex: 1;
+}
+
+/* Events */
+
 .event {
     background: grey;
-    box-shadow: inset 0 0 5px 1px black;
+    color: black;
     text-align: center;
+    box-shadow: inset 0 0 5px 1px black;
     min-width: 225px;
     min-height: 40px;
-    flex: 1;
     padding: 2px 6px;
     margin: 3px;
     border-radius: 5px;
+    cursor: pointer;
 }
 .event > div:first-child {
     font-size: 20px;
@@ -36,25 +53,29 @@ body {
     vertical-align: text-bottom;
     margin-right: 5px;
 }
+
+#dail {
+    cursor: default;
+}
+
+/* Event States */
+
 .active {
     background: #d0ffd0;
     box-shadow: 0 0 5px 1px black;
-}
-
-#chart {
-    width: 100%;
-    height: 300px;
 }
 
 .loading {
     background: linear-gradient(to right, grey 20%, white 40%, grey);
     background-size: 20%;
     box-shadow: none;
+    cursor: progress;
     animation: tread 1s linear infinite;
 }
 .loading:after {
     content: 'Loading';
     font-family: monospace;
+    line-height: 40px;
 }
 
 @keyframes tread {
@@ -64,9 +85,28 @@ body {
 
 .error {
     background: black;
+    cursor: not-allowed;
 }
 .error:after {
     content: 'Error';
-    font-family: monospace;
     color: white;
+    font-family: monospace;
+    line-height: 40px;
+}
+
+/* Charts */
+
+#chart {
+    width: 100%;
+    height: 300px;
+}
+
+/* Other Resources */
+
+.flex > a {
+    background: white;
+    text-align: center;
+    padding: 2px 6px;
+    margin: 1px;
+    border-radius: 5px;
 }
