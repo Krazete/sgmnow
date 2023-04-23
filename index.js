@@ -1,10 +1,10 @@
 var events = {
-    "rift": {"row":  1, "range": "B3:B13,F3:M13", "data": false, "min": 0},
-    "char": {"row": 12, "range": "B14:B24,E14:F24,K14:L24", "data": false, "min": 0},
-    "elem": {"row": 23, "range": "B25:B35,D25:F35", "data": false, "min": 0},
-    "medi": {"row": 34, "range": "B36:B46,D36:D46", "data": false, "min": 0},
-    "smym": {"row": 45, "range": "B47:B57,D47:E57", "data": false, "min": 0},
-    "holi": {"row": 56, "range": "B58:B68,D58:H68", "data": false, "min": 0}
+    "rift": {"row": 1, "range": "B3:B13,F3:M13", "data": false},
+    "char": {"row": 12, "range": "B14:B24,E14:F24,K14:L24", "data": false},
+    "elem": {"row": 23, "range": "B25:B35,E25:F35", "data": false},
+    "medi": {"row": 34, "range": "B36:B46,D36:D46", "data": false},
+    "smym": {"row": 45, "range": "B47:B57,D47:E57", "data": false},
+    "holi": {"row": 56, "range": "B58:B68,D58:H68", "data": false}
 };
 var ce, lastCheck;
 
@@ -15,6 +15,7 @@ function sendQuery(q, f, ids) {
     var elements = ids.map(id => document.getElementById(id));
     elements.forEach(e => {
         e.innerHTML = "";
+        e.classList.remove("error");
         e.classList.add("loading");
     });
 
@@ -112,7 +113,8 @@ function checkNow() {
             true
         );
     }, ["dail"]);
-    sendQuery("select A", function (data) { /* uses `tq=select A` because `range=a:a` skips empty cells */
+    sendQuery("select A", function (data) {
+        /* uses `tq=select A` because `range=a:a` skips empty cells */
         for (var id in events) {
             setEvent(
                 id,
@@ -130,18 +132,34 @@ function checkNow() {
 
 function redraw() {
     var element = document.getElementById("chart");
-    var chart = new google.visualization.LineChart(element);
     if (events[ce].data.getNumberOfRows() <= 1) {
-        chart = new google.visualization.ColumnChart(element);
+        var chart = new google.visualization.ColumnChart(element);
     }
+    else {
+        var chart = new google.visualization.LineChart(element);
+    }
+    var title = document.getElementById(ce).innerText
+                .replace(/Current|Last|\n/g, " ")
+                .replace(/Rift Element: (.+)/g, "Rift Battles: $1 Boss Node")
+                .replace(/(.*SMYM.*):.*/g, "$1")
+                .replace(/PF/g, "Prize Fight");
     chart.draw(events[ce].data, {
-        title: ce,
-        titleTextStyle: {color: "pink"},
-        hAxis: {title: 'Date', titleTextStyle: {color: "pink"}, textStyle: {color: "white"}},
-        vAxis: {title: 'Score', titleTextStyle: {color: "pink"}, textStyle: {color: "white"}, viewWindow: {min: events[ce].min}},
+        title: title,
+        titleTextStyle: {color: "white"},
         legend: {textStyle: {color: "white"}},
+        hAxis: {
+            textStyle: {color: "white"},
+            gridlines: {color: "#1b2a41"},
+            minorGridlines: {color: "#263b5a"}
+        },
+        vAxis: {
+            textStyle: {color: "white"},
+            gridlines: {color: "#1b2a41"},
+            minorGridlines: {color: "#263b5a"}
+        },
         backgroundColor: "transparent",
-        colors: ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]
+        colors: ["red", "orange", "yellow", "green", "blue", "indigo", "violet"],
+        lineWidth: 5
     });
 }
 
