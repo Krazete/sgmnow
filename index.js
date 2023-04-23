@@ -6,7 +6,7 @@ var events = {
     "smym": {"row": 45, "range": "B47:B57,D47:E57", "data": false, "min": 0},
     "holi": {"row": 56, "range": "B58:B68,D58:H68", "data": false, "min": 0}
 };
-var ce;
+var ce, lastCheck;
 
 google.charts.load("current", {"packages": ["corechart"]});
 google.charts.setOnLoadCallback(checkNow);
@@ -97,6 +97,7 @@ function setEvent(id, title, contents, active) {
 }
 
 function checkNow() {
+    lastCheck = Date.now();
     var sheetTime = document.getElementById("sheet-time");
     sendQuery("1:1", function (data) {
         var contents = [];
@@ -109,7 +110,7 @@ function checkNow() {
             data.getValue(0, 0),
             contents,
             true
-        )
+        );
     }, ["dail"]);
     sendQuery("select A", function (data) { /* uses `tq=select A` because `range=a:a` skips empty cells */
         for (var id in events) {
@@ -167,6 +168,24 @@ function checkChart(id) {
 }
 
 /* Listeners */
+
+function keepFresh() {
+    var now = Date.now();
+    var today = now - now % 86400000 - 25200000; /* refresh at 10am PT */
+    var stale = lastCheck < today;
+    if (stale) {
+        for (var id in events) {
+            events[id].data = false;
+        }
+        checkNow();
+        if (ce) {
+            redraw();
+        }
+    }
+    requestAnimationFrame(keepFresh);
+}
+
+keepFresh();
 
 function onClick(e) {
     if (typeof e.target !== "undefined") {
