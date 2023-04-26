@@ -1,10 +1,10 @@
 var events = {
-    "rift": {"row": 1, "range": "B3:B13,F3:M13", "data": false},
-    "char": {"row": 12, "range": "B14:B24,E14:F24,K14:L24", "data": false},
-    "elem": {"row": 23, "range": "B25:B35,E25:F35", "data": false},
-    "medi": {"row": 34, "range": "B36:B46,D36:D46", "data": false},
-    "smym": {"row": 45, "range": "B47:B57,D47:E57", "data": false},
-    "holi": {"row": 56, "range": "B58:B68,D58:H68", "data": false}
+    "rift": {"row": 1, "range": "B3:B13,F3:M13", "data": false, "colors": ["#ee4f87", "#dd3b73", "#cc275f", "#bb134b", "gold", "#ecbe10", "goldenrod", "#c78c30"]},
+    "char": {"row": 12, "range": "B14:B24,E14:F24,K14:L24", "data": false, "colors": ["#ee4f87", "#cc275f", "gold", "goldenrod"]},
+    "elem": {"row": 23, "range": "B25:B35,E25:F35", "data": false, "colors": ["gold", "silver"]},
+    "medi": {"row": 34, "range": "B36:B46,D36:D46", "data": false, "colors": ["white"]},
+    "smym": {"row": 45, "range": "B47:B57,E47:F57", "data": false, "colors": ["gold", "silver"]},
+    "holi": {"row": 56, "range": "B58:B68,D58:H68", "data": false, "colors": ["#ee4f87", "gold", "silver"]}
 };
 var ce, lastCheck;
 
@@ -158,13 +158,12 @@ function redraw() {
             minorGridlines: {color: "#263b5a"}
         },
         backgroundColor: "transparent",
-        colors: ["red", "orange", "yellow", "green", "blue", "indigo", "violet"],
+        colors: events[ce].colors,
         lineWidth: 5
     });
 }
 
 function checkChart(id) {
-    console.log(id);
     if (events[id].data) {
         ce = id;
         redraw(id);
