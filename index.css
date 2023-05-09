@@ -65,6 +65,12 @@ a {
     height: 300px;
     border-radius: 20px;
 }
+#chart:empty:after {
+    content: 'Select an event above.';
+    color: white;
+    font-family: monospace;
+    line-height: 400px;
+}
 
 /* Other Resources */
 

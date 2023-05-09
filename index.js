@@ -1,12 +1,12 @@
 var events = {
     "rift": {"row": 1, "range": "B3:B13,F3:M13", "data": false, "colors": ["#ee4f87", "#dd3b73", "#cc275f", "#bb134b", "gold", "#ecbe10", "goldenrod", "#c78c30"]},
-    "char": {"row": 12, "range": "B14:B24,E14:F24,K14:L24", "data": false, "colors": ["#ee4f87", "#cc275f", "gold", "goldenrod"]},
-    "elem": {"row": 23, "range": "B25:B35,E25:F35", "data": false, "colors": ["gold", "silver"]},
-    "medi": {"row": 34, "range": "B36:B46,D36:D46", "data": false, "colors": ["white"]},
-    "smym": {"row": 45, "range": "B47:B57,E47:F57", "data": false, "colors": ["gold", "silver"]},
-    "holi": {"row": 56, "range": "B58:B68,D58:H68", "data": false, "colors": ["#ee4f87", "gold", "silver"]}
+    "char": {"row": 4, "range": "B14:B24,E14:F24,K14:L24", "data": false, "colors": ["#ee4f87", "#cc275f", "gold", "goldenrod"]},
+    "elem": {"row": 7, "range": "B25:B35,E25:F35", "data": false, "colors": ["gold", "silver"]},
+    "medi": {"row": 10, "range": "B36:B46,D36:D46", "data": false, "colors": ["#ee4f87"]},
+    "smym": {"row": 13, "range": "B47:B57,E47:F57", "data": false, "colors": ["gold", "silver"]},
+    "holi": {"row": 16, "range": "B58:B68,D58:H68", "data": false, "colors": ["#ee4f87", "gold", "silver"]}
 };
-var ce, lastCheck;
+var ce, lastCheck, checkBuffer = 0;
 
 google.charts.load("current", {"packages": ["corechart"]});
 google.charts.setOnLoadCallback(checkNow);
@@ -50,8 +50,8 @@ function sendQuery(q, f, ids) {
             try {
                 f(data);
             }
-            catch (e) {
-                console.error(e);
+            catch (error) {
+                console.error(error);
                 elements.forEach(e => e.classList.add("error"));
             }
         }
@@ -77,12 +77,13 @@ function setEvent(id, title, contents, active) {
     for (var content of contents) {
         var boxContent = document.createElement("div");
         if (id == "dail" || id == "char") {
-            var fn = content.replace(/-F/, "f").replace(/\s|\./g, "") + "_MasteryIcon";
-            boxContent.appendChild(getIcon(fn));
+            var character = content.replace(/-F/, "f").replace(/\s|\./g, "");
+            var icon = getIcon(character + "_MasteryIcon");
+            boxContent.appendChild(icon);
         }
         else if (id == "rift" || id == "elem") {
-            var fn = "ElementalIcon" + content;
-            boxContent.appendChild(getIcon(fn));
+            var icon = getIcon("ElementalIcon" + content);
+            boxContent.appendChild(icon);
         }
         boxContent.innerHTML += content;
         boxContents.appendChild(boxContent);
@@ -100,6 +101,11 @@ function setEvent(id, title, contents, active) {
 function checkNow() {
     lastCheck = Date.now();
     var sheetTime = document.getElementById("sheet-time");
+function checkNow() {
+    if (checkBuffer > 0) {
+        return;
+    }
+    checkBuffer = 2;
     sendQuery("1:1", function (data) {
         var contents = [];
         var n = data.getNumberOfColumns();
@@ -112,9 +118,11 @@ function checkNow() {
             contents,
             true
         );
+        checkBuffer--;
     }, ["dail"]);
-    sendQuery("select A", function (data) {
-        /* uses `tq=select A` because `range=a:a` skips empty cells */
+    sendQuery("a:a", function (data) {
+        /* `range=a:a` skips empty cells */
+        /* `tq=select A` skips empty rows */
         for (var id in events) {
             setEvent(
                 id,
@@ -123,8 +131,10 @@ function checkNow() {
                 data.getValue(events[id].row + 2, 0) > 0
             );
         }
-        var datenow = new Date(data.getValue(0, 0) + "-17:00");
-        sheetTime.innerHTML = "Sheet last updated on " + datenow;
+        lastCheck = new Date(data.getValue(0, 0) + "-17:00");
+        var sheetTime = document.getElementById("sheet-time");
+        sheetTime.innerHTML = ", last updated on " + lastCheck;
+        checkBuffer--;
     }, Object.keys(events));
 }
 
@@ -188,9 +198,8 @@ function checkChart(id) {
 
 function keepFresh() {
     var now = Date.now();
-    var today = now - now % 86400000 - 25200000; /* refresh at 10am PT */
-    var stale = lastCheck < today;
-    if (stale) {
+    var refreshTime = now - now % 86400000 - 25200000; /* 10am PT */
+    if (lastCheck < refreshTime) {
         for (var id in events) {
             events[id].data = false;
         }
@@ -205,7 +214,7 @@ function keepFresh() {
 keepFresh();
 
 function onClick(e) {
-    if (typeof e.target !== "undefined") {
+    if (typeof e.target != "undefined") {
         e = e.target;
     }
     if (Object.keys(events).includes(e.id)) {
@@ -213,7 +222,7 @@ function onClick(e) {
             checkChart(e.id);
         }
     }
-    else if (e !== document.body) {
+    else if (e != document.body) {
         onClick(e.parentElement);
     }
 }
