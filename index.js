@@ -98,8 +98,6 @@ function setEvent(id, title, contents, active) {
     }
 }
 
-function checkNow() {
-    lastCheck = Date.now();
     var sheetTime = document.getElementById("sheet-time");
 function checkNow() {
     if (checkBuffer > 0) {
