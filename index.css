@@ -59,9 +59,6 @@ a {
 .stale #timestamp {
     color: yellow;
 }
-.stale #timestamp:after {
-    content: ' \21bb';
-}
 
 /* Charts */
 
@@ -128,4 +125,8 @@ a {
     color: white;
     font-family: monospace;
     line-height: 40px;
+}
+
+.loading > *, .error > * {
+    display: none;
 }

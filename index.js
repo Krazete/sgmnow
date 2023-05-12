@@ -1,10 +1,10 @@
 var events = {
-    "rift": {"row": 1, "range": "B3:B13,F3:M13", "data": false, "colors": ["#ee4f87", "#dd3b73", "#cc275f", "#bb134b", "gold", "#ecbe10", "goldenrod", "#c78c30"]},
-    "char": {"row": 4, "range": "B14:B24,E14:F24,K14:L24", "data": false, "colors": ["#ee4f87", "#cc275f", "gold", "goldenrod"]},
+    "rift": {"row": 1, "range": "B3:B13,F3:M13", "data": false, "colors": ["#f97d9f", "#d96988", "#b95571", "#99415a", "gold", "#ecbe10", "goldenrod", "#c78c30"]},
+    "char": {"row": 4, "range": "B14:B24,E14:F24,K14:L24", "data": false, "colors": ["#f97d9f", "#b95571", "gold", "goldenrod"]},
     "elem": {"row": 7, "range": "B25:B35,E25:F35", "data": false, "colors": ["gold", "silver"]},
-    "medi": {"row": 10, "range": "B36:B46,D36:D46", "data": false, "colors": ["#ee4f87"]},
+    "medi": {"row": 10, "range": "B36:B46,D36:D46", "data": false, "colors": ["#f97d9f"]},
     "smym": {"row": 13, "range": "B47:B57,E47:F57", "data": false, "colors": ["gold", "silver"]},
-    "holi": {"row": 16, "range": "B58:B68,D58:H68", "data": false, "colors": ["#ee4f87", "gold", "silver"]}
+    "holi": {"row": 16, "range": "B58:B68,D58:H68", "data": false, "colors": ["#f97d9f", "gold", "silver"]}
 };
 var selectedEvent;
 var lastCheck = 0;
@@ -16,7 +16,6 @@ google.charts.setOnLoadCallback(keepFresh);
 function sendQuery(q, f, ids) {
     var elements = ids.map(id => document.getElementById(id));
     elements.forEach(e => {
-        e.innerHTML = "";
         e.classList.remove("error");
         e.classList.add("loading");
     });
@@ -70,6 +69,7 @@ function getIcon(name) {
 
 function setEvent(id, title, contents, active) {
     var box = document.getElementById(id);
+    box.innerHTML = "";
 
     var boxTitle = document.createElement("div");
     boxTitle.innerHTML = title;

@@ -16,5 +16,5 @@ function getColors(color0, color1, n, overflow) {
     );
     return colors;
 }
-console.log(getColors(0xee4f87, 0xaa0037, 4));
+console.log(getColors(0xf97d9f, 0xb95571, 4));
 console.log(getColors(0xffd700, 0xdaa520, 2, 2));
