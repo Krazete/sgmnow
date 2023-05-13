@@ -1,14 +1,45 @@
 var events = {
-    "rift": {"row": 1, "range": "B3:B13,F3:M13", "data": false, "colors": ["#f97d9f", "#d96988", "#b95571", "#99415a", "gold", "#ecbe10", "goldenrod", "#c78c30"]},
-    "char": {"row": 4, "range": "B14:B24,E14:F24,K14:L24", "data": false, "colors": ["#f97d9f", "#b95571", "gold", "goldenrod"]},
-    "elem": {"row": 7, "range": "B25:B35,E25:F35", "data": false, "colors": ["gold", "silver"]},
-    "medi": {"row": 10, "range": "B36:B46,D36:D46", "data": false, "colors": ["#f97d9f"]},
-    "smym": {"row": 13, "range": "B47:B57,E47:F57", "data": false, "colors": ["gold", "silver"]},
-    "holi": {"row": 16, "range": "B58:B68,D58:H68", "data": false, "colors": ["#f97d9f", "gold", "silver"]}
+    "rift": {
+        "row": 1,
+        "range": "B3:B13,F3:M13", 
+        "colors": ["#f97d9f", "#d96988", "#b95571", "#99415a", "gold", "#ecbe10", "goldenrod", "#c78c30"],
+        "data": false
+    },
+    "char": {
+        "row": 4,
+        "range": "B14:B24,E14:F24,K14:L24",
+        "colors": ["#f97d9f", "#b95571", "gold", "goldenrod"],
+        "data": false
+    },
+    "elem": {
+        "row": 7,
+        "range": "B25:B35,E25:F35", 
+        "colors": ["gold", "silver"],
+        "data": false
+    },
+    "medi": {
+        "row": 10,
+        "range": "B36:B46,D36:D46", 
+        "colors": ["#f97d9f"],
+        "data": false
+    },
+    "smym": {
+        "row": 13,
+        "range": "B47:B57,E47:F57", 
+        "colors": ["gold", "silver"],
+        "data": false
+    },
+    "holi": {
+        "row": 16,
+        "range": "B58:B68,D58:H68", 
+        "colors": ["#f97d9f", "gold", "silver"],
+        "data": false
+    }
 };
 var selectedEvent;
 var lastCheck = 0;
 var updateBuffer = 0;
+var propagateUpdate = false;
 
 google.charts.load("current", {"packages": ["corechart"]});
 google.charts.setOnLoadCallback(keepFresh);
@@ -178,12 +209,13 @@ function updateEvents() {
         lastCheck = new Date(data.getValue(0, 0) + "-17:00"); /* tz?? */
         updateTimestamp(lastCheck);
         updateBuffer--;
+        propagateUpdate = true;
     }, Object.keys(events));
 }
 
 /* Charts */
 
-function redraw() {
+function redrawChart() {
     var element = document.getElementById("chart");
     if (events[selectedEvent].data.getNumberOfRows() <= 1) {
         var chart = new google.visualization.ColumnChart(element);
@@ -219,7 +251,7 @@ function redraw() {
 function checkChart(id) {
     if (events[id].data) {
         selectedEvent = id;
-        redraw(id);
+        redrawChart(id);
     }
     else {
         sendQuery(events[id].range, function (data) {
@@ -241,21 +273,20 @@ function checkChart(id) {
 
 function keepFresh() {
     var now = Date.now();
-    var refreshTime = now - now % 86400000 - 25200000; /* 10am PT */
+    var refreshTime = now - now % 86400000 + 61200000; /* 10PT/17UTC */
     if (lastCheck < refreshTime) {
-        if (lastCheck > 0) {
-            document.documentElement.classList.add("stale");
-        }
+        document.documentElement.classList.add("stale");
+        updateEvents();
+    }
+    else if (propagateUpdate) {
+        propagateUpdate = false;
+        document.documentElement.classList.remove("stale");
         for (var id in events) {
             events[id].data = false;
         }
-        updateEvents();
         if (selectedEvent) {
-            redraw();
+            redrawChart();
         }
-    }
-    else {
-        document.documentElement.classList.remove("stale");
     }
     requestAnimationFrame(keepFresh);
 }
@@ -275,4 +306,4 @@ function onClick(e) {
 }
 
 window.addEventListener("click", onClick);
-window.addEventListener("resize", redraw);
+window.addEventListener("resize", redrawChart);
