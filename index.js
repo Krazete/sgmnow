@@ -274,7 +274,7 @@ function checkChart(id) {
 /* Listeners */
 
 function keepFresh() {
-    var now = Date.now();
+    var now = Date.now() - 61200000;
     var refreshTime = now - now % 86400000 + 61200000; /* 10PT/17UTC */
     if (lastCheck < refreshTime) {
         document.documentElement.classList.add("stale");
