@@ -40,6 +40,7 @@ var selectedEvent;
 var lastCheck = 0;
 var updateBuffer = 0;
 var propagateUpdate = false;
+var attempts = 10;
 
 google.charts.load("current", {"packages": ["corechart"]});
 google.charts.setOnLoadCallback(keepFresh);
@@ -177,10 +178,11 @@ function updateTimestamp(date) {
 }
 
 function updateEvents() {
-    if (updateBuffer > 0) {
+    if (updateBuffer > 0 || attempts == 0) {
         return;
     }
     updateBuffer = 2;
+    attempts--;
     sendQuery("1:1", function (data) {
         var contents = [];
         var n = data.getNumberOfColumns();
