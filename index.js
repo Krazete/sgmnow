@@ -219,6 +219,7 @@ function updateEvents() {
 
 function redrawChart() {
     var element = document.getElementById("chart");
+    element.classList.remove("error");
     if (events[selectedEvent].data.getNumberOfRows() <= 1) {
         var chart = new google.visualization.ColumnChart(element);
     }

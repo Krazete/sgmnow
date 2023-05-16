@@ -22,7 +22,7 @@ a {
     flex: 1;
 }
 
-/* Events */
+/* Event */
 
 .event {
     background-color: grey;
@@ -36,9 +36,18 @@ a {
     border-radius: 5px;
     cursor: pointer;
 }
+.event.active {
+    background-color: #d0ffd0;
+    box-shadow: 0 0 5px 1px black;
+}
+#dail {
+    cursor: default;
+}
+
 .event > div:first-child {
     font-size: 20px;
 }
+
 .event > div:last-child {
     font-size: 16px;
 }
@@ -52,15 +61,13 @@ a {
     margin-right: 5px;
 }
 
-#dail {
-    cursor: default;
-}
+/* Timestamp */
 
 .stale #timestamp {
     color: yellow;
 }
 
-/* Charts */
+/* Chart */
 
 #chart {
     background-color: #314c73;
@@ -70,14 +77,65 @@ a {
     border-radius: 15px;
     margin: 3px;
 }
-#chart:empty:after {
-    content: 'Select an event above.';
-    color: white;
-    font-family: monospace;
-    line-height: 400px;
+
+/* Status */
+
+#chart:empty,
+.loading,
+.error {
+    box-shadow: none;
+    position: relative;
+    overflow: hidden;
+}
+.loading {
+    cursor: progress;
+}
+.error {
+    cursor: not-allowed;
 }
 
-/* Other Resources */
+#chart:empty:after,
+.loading:after,
+.error:after {
+    font-family: monospace;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#chart:empty:after {
+    content: 'Select an event above.';
+}
+#chart.loading:after,
+.loading:after {
+    content: 'Loading';
+    background-image: linear-gradient(to right, white, gray 20%, white);
+    background-size: 20%;
+    animation: tread 1s linear infinite;
+    color: black;
+}
+.error:after {
+    content: 'Error';
+    background-image: radial-gradient(rgba(0, 0, 0, 0.67), black);
+    color: white;
+}
+
+@keyframes tread {
+    0% {background-position: 0%;}
+    100% {background-position: 25%;}
+}
+
+#chart:empty > *,
+.loading > *,
+.error > * {
+    filter: blur(1px);
+}
+
+/* Other */
 
 .flex > a {
     background-color: #263b5a;
@@ -86,47 +144,4 @@ a {
     padding: 2px 6px;
     margin: 1px;
     border-radius: 5px;
-}
-
-/* States */
-
-.active {
-    background-color: #d0ffd0;
-    box-shadow: 0 0 5px 1px black;
-}
-
-.loading {
-    background-image: linear-gradient(to right, grey 20%, white 40%, grey);
-    background-size: 20%;
-    box-shadow: none;
-    cursor: progress;
-    animation: tread 1s linear infinite;
-}
-.loading:after {
-    content: 'Loading';
-    display: block;
-    color: black;
-    font-family: monospace;
-    line-height: 40px;
-}
-
-@keyframes tread {
-    0% {background-position: 0%;}
-    100% {background-position: 25%;}
-}
-
-.error {
-    background-color: black;
-    box-shadow: none;
-    cursor: not-allowed;
-}
-.error:after {
-    content: 'Error';
-    color: white;
-    font-family: monospace;
-    line-height: 40px;
-}
-
-.loading > *, .error > * {
-    display: none;
 }
