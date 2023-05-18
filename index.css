@@ -56,20 +56,9 @@ a {
     margin: 0 5px;
 }
 .event img {
-    width: 20px;
     vertical-align: text-bottom;
+    width: 20px;
     margin-right: 5px;
-}
-
-/* Timestamp */
-
-.info {
-    font-size: 10px;
-    text-align: right;
-}
-
-.stale #timestamp {
-    color: yellow;
 }
 
 /* Chart */
@@ -141,14 +130,29 @@ a {
 
 /* Other */
 
-#title {
+.title {
     font-size: 20px;
 }
 
-.flex > a {
+.info {
+    font-size: 10px;
+    text-align: right;
+}
+
+.stale #timestamp {
+    color: yellow;
+}
+
+.flex.me > a,
+.flex.hvs > a {
     background-color: #263b5a;
-    min-width: 180px;
     padding: 2px 6px;
     margin: 1px;
     border-radius: 5px;
+}
+.flex.me > a {
+    min-width: 110px;
+}
+.flex.hvs > a {
+    flex-basis: 17%;
 }
