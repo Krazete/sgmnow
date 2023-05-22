@@ -278,7 +278,9 @@ function keepFresh() {
     var now = Date.now();
     var refreshTime = now - (now - 61200000) % 86400000; /* 10PT/17UTC */
     if (lastCheck < refreshTime) {
-        document.documentElement.classList.add("stale");
+        if (lastCheck > 0) {
+            document.documentElement.classList.add("stale");
+        }
         updateEvents();
     }
     else if (propagateUpdate) {

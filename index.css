@@ -73,6 +73,14 @@ a {
 
 /* Status */
 
+.stale {
+    filter: sepia(0.5);
+}
+
+.stale #timestamp {
+    color: yellow;
+}
+
 #chart:empty,
 .loading,
 .error {
@@ -137,10 +145,6 @@ a {
 .info {
     font-size: 10px;
     text-align: right;
-}
-
-.stale #timestamp {
-    color: yellow;
 }
 
 .flex.me > a,
