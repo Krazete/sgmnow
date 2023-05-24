@@ -39,6 +39,7 @@ var events = {
 var selectedEvent;
 var now;
 var lastCheck = 0;
+var stampIssue = {};
 var waiting = false;
 var propagating = false;
 var attempts = 10;
@@ -177,6 +178,16 @@ function setEvent(id, title, contents, active) {
     }
 }
 
+function updateTimestamp() {
+    var timestamp = document.getElementById("timestamp");
+    timestamp.innerHTML = formatDateTime(lastCheck);
+
+    stampIssue.timezoneOffset = now.getTimezoneOffset();
+    stampIssue.fullYear = now.getFullYear();
+    stampIssue.month = now.getMonth();
+    stampIssue.date = now.getDate();
+}
+
 function updateEvents() {
     attempts--;
     sendQuery("a:a", function (data) {
@@ -197,8 +208,7 @@ function updateEvents() {
                 data.getValue(events[id].row + 2, 0) > 0
             );
         }
-        var timestamp = document.getElementById("timestamp");
-        timestamp.innerHTML = formatDateTime(lastCheck);
+        updateTimestamp();
         waiting = false;
         propagating = true;
     }, Object.keys(events).concat("dail"));
@@ -289,6 +299,14 @@ function keepFresh() {
         }
         var nextReset = new Date(lastReset + 86400000);
         console.log("Next reset is" + formatDateTime(nextReset) + "."); /* for DST debugging */
+    }
+    if (lastCheck > 0 && (
+        stampIssue.timezoneOffset != now.getTimezoneOffset() ||
+        stampIssue.fullYear != now.getFullYear() ||
+        stampIssue.month != now.getMonth() ||
+        stampIssue.date != now.getDate()
+    )) {
+        updateTimestamp();
     }
     requestAnimationFrame(keepFresh);
 }
