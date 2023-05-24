@@ -1,50 +1,61 @@
 var events = {
-    "rift": {
-        "row": 3,
-        "range": "B4:B14,F4:M14", 
-        "colors": ["#f97d9f", "#d96988", "#b95571", "#99415a", "gold", "#ecbe10", "goldenrod", "#c78c30"],
-        "data": false
+    rift: {
+        row: 3,
+        range: "B4:B14,F4:M14", 
+        colors: ["#f97d9f", "#d96988", "#b95571", "#99415a", "gold", "#ecbe10", "goldenrod", "#c78c30"],
+        data: false
     },
-    "char": {
-        "row": 6,
-        "range": "B15:B25,E15:F25,K15:L25",
-        "colors": ["#f97d9f", "#b95571", "gold", "goldenrod"],
-        "data": false
+    char: {
+        row: 6,
+        range: "B15:B25,E15:F25,K15:L25",
+        colors: ["#f97d9f", "#b95571", "gold", "goldenrod"],
+        data: false
     },
-    "elem": {
-        "row": 9,
-        "range": "B26:B36,E26:F36", 
-        "colors": ["gold", "silver"],
-        "data": false
+    elem: {
+        row: 9,
+        range: "B26:B36,E26:F36", 
+        colors: ["gold", "silver"],
+        data: false
     },
-    "medi": {
-        "row": 12,
-        "range": "B37:B47,D37:D47", 
-        "colors": ["#f97d9f"],
-        "data": false
+    medi: {
+        row: 12,
+        range: "B37:B47,D37:D47", 
+        colors: ["#f97d9f"],
+        data: false
     },
-    "smym": {
-        "row": 15,
-        "range": "B48:B58,E48:F58", 
-        "colors": ["gold", "silver"],
-        "data": false
+    smym: {
+        row: 15,
+        range: "B48:B58,E48:F58", 
+        colors: ["gold", "silver"],
+        data: false
     },
-    "holi": {
-        "row": 18,
-        "range": "B59:B69,D59:H69", 
-        "colors": ["#f97d9f", "gold", "silver"],
-        "data": false
+    holi: {
+        row: 18,
+        range: "B59:B69,D59:H69", 
+        colors: ["#f97d9f", "gold", "silver"],
+        data: false
     }
 };
 var selectedEvent;
 var now;
+var resetOffset = 61200000;
 var lastCheck = 0;
 var stampIssue = {};
 var waitUntil = 0;
 var attempts = 10;
 var propagating = false;
 
-google.charts.load("current", {"packages": ["corechart"]});
+if ("Intl" in window) {
+    var dtf = Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Los_Angeles",
+        timeZoneName: "long"
+    }).format();
+    if (dtf.indexOf("Standard") >= 0) { /* vs Daylight */
+        resetOffset = 64800000;
+    }
+}
+
+google.charts.load("current", {packages: ["corechart"]});
 google.charts.setOnLoadCallback(keepFresh);
 
 function sendQuery(q, f, ids) {
@@ -103,14 +114,14 @@ function daysSinceLocalEpoch(date) {
 
 function formatDate(date) {
     if ("Intl" in window) {
-        return Intl.DateTimeFormat([], {"dateStyle": "short"}).format(date);
+        return Intl.DateTimeFormat([], {dateStyle: "short"}).format(date);
     }
     return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
 }
 
 function formatTime(date) {
     if ("Intl" in window) {
-        return Intl.DateTimeFormat([], {"timeStyle": "short"}).format(date);
+        return Intl.DateTimeFormat([], {timeStyle: "short"}).format(date);
     }
     return date.getHours() + ":" + date.getMinutes();
 }
@@ -283,7 +294,7 @@ function updateChart(id) {
 
 function keepFresh() {
     now = new Date();
-    var lastReset = now - (now - 61200000) % 86400000; /* 10PT/17UTC */
+    var lastReset = now - (now - resetOffset) % 86400000; /* 10PT/17UTC */
     if (lastCheck < lastReset) {
         if (lastCheck > 0) {
             document.documentElement.classList.add("stale");
@@ -308,12 +319,12 @@ function keepFresh() {
         var nextReset = new Date(lastReset + 86400000); /* for DST debugging */
         console.log("Next reset is" + formatDateTime(nextReset) + ".");
     }
-    else if (lastCheck > 0 && (
+    else if (
         stampIssue.timezoneOffset != now.getTimezoneOffset() ||
         stampIssue.fullYear != now.getFullYear() ||
         stampIssue.month != now.getMonth() ||
         stampIssue.date != now.getDate()
-    )) {
+    ) {
         updateTimestamp();
     }
     requestAnimationFrame(keepFresh);
