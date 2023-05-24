@@ -233,10 +233,15 @@ function redrawChart() {
                 .replace(/Rift Element: (.+)/g, "Rift Battles: $1 Boss Node")
                 .replace(/(.*SMYM.*):.*/g, "$1")
                 .replace(/PF/g, "Prize Fight");
+    var thin = innerWidth < 650;
     chart.draw(events[selectedEvent].data, {
+        chartArea: thin ? {left: "20%", width: "75%"} : {},
         title: title,
         titleTextStyle: {color: "white"},
-        legend: {textStyle: {color: "white"}},
+        legend: {
+            textStyle: {color: "white"},
+            position: thin ? "bottom" : "right"
+        },
         hAxis: {
             textStyle: {color: "white"},
             gridlines: {color: "#1b2a41"},
