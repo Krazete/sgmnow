@@ -39,8 +39,8 @@ var events = {
 var selectedEvent;
 var now;
 var lastCheck = 0;
-var waitBuffer = 0;
-var propagateUpdate = false;
+var waiting = false;
+var propagating = false;
 var attempts = 10;
 
 google.charts.load("current", {"packages": ["corechart"]});
@@ -136,11 +136,6 @@ function formatDateTime(date) {
     return addendum;
 }
 
-function updateTimestamp(date) {
-    var timestamp = document.getElementById("timestamp");
-    timestamp.innerHTML = formatDateTime(date);
-}
-
 /* Events */
 
 function getIcon(name) {
@@ -183,24 +178,17 @@ function setEvent(id, title, contents, active) {
 }
 
 function updateEvents() {
-    if (waitBuffer || attempts == 0) {
-        return;
-    }
-    waitBuffer = true;
     attempts--;
     sendQuery("a:a", function (data) {
         /* `range=a:a` skips empty cells */
         /* `tq=select A` skips empty rows */
         lastCheck = new Date(data.getValue(0, 0) + "-17:00");
-        updateTimestamp(lastCheck);
-
         setEvent(
             "dail",
             data.getValue(1, 0),
             data.getValue(2, 0).split(";"),
             true
         );
-
         for (var id in events) {
             setEvent(
                 id,
@@ -209,15 +197,19 @@ function updateEvents() {
                 data.getValue(events[id].row + 2, 0) > 0
             );
         }
-
-        waitBuffer = false;
-        propagateUpdate = true;
+        var timestamp = document.getElementById("timestamp");
+        timestamp.innerHTML = formatDateTime(lastCheck);
+        waiting = false;
+        propagating = true;
     }, Object.keys(events).concat("dail"));
 }
 
 /* Charts */
 
 function redrawChart() {
+    if (!selectedEvent) {
+        return;
+    }
     var element = document.getElementById("chart");
     element.classList.remove("error");
     if (events[selectedEvent].data.getNumberOfRows() <= 1) {
@@ -254,7 +246,7 @@ function redrawChart() {
 function checkChart(id) {
     if (events[id].data) {
         selectedEvent = id;
-        redrawChart(id);
+        redrawChart();
     }
     else {
         sendQuery(events[id].range, function (data) {
@@ -265,9 +257,9 @@ function checkChart(id) {
                     i--;
                 }
             }
-            console.log(data);
             events[id].data = data;
-            checkChart(id);
+            selectedEvent = id;
+            redrawChart();
         }, ["chart"]);
     }
 }
@@ -278,23 +270,25 @@ function keepFresh() {
     now = new Date();
     var lastReset = now - (now - 61200000) % 86400000; /* 10PT/17UTC */
     if (lastCheck < lastReset) {
-        if (lastCheck > 0) {
-            document.documentElement.classList.add("stale");
+        if (!waiting && attempts > 0) {
+            waiting = true;
+            if (lastCheck > 0) {
+                document.documentElement.classList.add("stale");
+            }
+            updateEvents();
         }
-        updateEvents();
     }
-    else if (propagateUpdate) {
-        var nextReset = new Date(lastReset + 86400000);
-        console.log("Next reset time is" + formatDateTime(nextReset) + "."); /* for DST debugging */
-
-        propagateUpdate = false;
+    else if (propagating) {
+        propagating = false;
         document.documentElement.classList.remove("stale");
         for (var id in events) {
             events[id].data = false;
         }
         if (selectedEvent) {
-            redrawChart();
+            checkChart(selectedEvent);
         }
+        var nextReset = new Date(lastReset + 86400000);
+        console.log("Next reset is" + formatDateTime(nextReset) + "."); /* for DST debugging */
     }
     requestAnimationFrame(keepFresh);
 }
