@@ -1,36 +1,36 @@
 var events = {
     "rift": {
-        "row": 1,
+        "row": 3,
         "range": "B3:B13,F3:M13", 
         "colors": ["#f97d9f", "#d96988", "#b95571", "#99415a", "gold", "#ecbe10", "goldenrod", "#c78c30"],
         "data": false
     },
     "char": {
-        "row": 4,
+        "row": 6,
         "range": "B14:B24,E14:F24,K14:L24",
         "colors": ["#f97d9f", "#b95571", "gold", "goldenrod"],
         "data": false
     },
     "elem": {
-        "row": 7,
+        "row": 9,
         "range": "B25:B35,E25:F35", 
         "colors": ["gold", "silver"],
         "data": false
     },
     "medi": {
-        "row": 10,
+        "row": 12,
         "range": "B36:B46,D36:D46", 
         "colors": ["#f97d9f"],
         "data": false
     },
     "smym": {
-        "row": 13,
+        "row": 15,
         "range": "B47:B57,E47:F57", 
         "colors": ["gold", "silver"],
         "data": false
     },
     "holi": {
-        "row": 16,
+        "row": 18,
         "range": "B58:B68,D58:H68", 
         "colors": ["#f97d9f", "gold", "silver"],
         "data": false
@@ -38,7 +38,7 @@ var events = {
 };
 var selectedEvent;
 var lastCheck = 0;
-var updateBuffer = 0;
+var waitBuffer = 0;
 var propagateUpdate = false;
 var attempts = 10;
 
@@ -178,28 +178,24 @@ function updateTimestamp(date) {
 }
 
 function updateEvents() {
-    if (updateBuffer > 0 || attempts == 0) {
+    if (waitBuffer || attempts == 0) {
         return;
     }
-    updateBuffer = 2;
+    waitBuffer = true;
     attempts--;
-    sendQuery("1:1", function (data) {
-        var contents = [];
-        var n = data.getNumberOfColumns();
-        for (var i = 1; i < n; i++) {
-            contents.push(data.getValue(0, i));
-        }
-        setEvent(
-            "dail",
-            data.getValue(0, 0),
-            contents,
-            true
-        );
-        updateBuffer--;
-    }, ["dail"]);
     sendQuery("a:a", function (data) {
         /* `range=a:a` skips empty cells */
         /* `tq=select A` skips empty rows */
+        lastCheck = new Date(data.getValue(0, 0) + "-17:00");
+        updateTimestamp(lastCheck);
+
+        setEvent(
+            "dail",
+            data.getValue(1, 0),
+            data.getValue(2, 0).split(";"),
+            true
+        );
+
         for (var id in events) {
             setEvent(
                 id,
@@ -208,11 +204,10 @@ function updateEvents() {
                 data.getValue(events[id].row + 2, 0) > 0
             );
         }
-        lastCheck = new Date(data.getValue(0, 0) + "-17:00"); /* tz?? */
-        updateTimestamp(lastCheck);
-        updateBuffer--;
+
+        waitBuffer = false;
         propagateUpdate = true;
-    }, Object.keys(events));
+    }, Object.keys(events).concat("dail"));
 }
 
 /* Charts */
