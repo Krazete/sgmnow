@@ -40,9 +40,9 @@ var selectedEvent;
 var now;
 var lastCheck = 0;
 var stampIssue = {};
-var waiting = false;
-var propagating = false;
+var waitUntil = 0;
 var attempts = 10;
+var propagating = false;
 
 google.charts.load("current", {"packages": ["corechart"]});
 google.charts.setOnLoadCallback(keepFresh);
@@ -189,7 +189,6 @@ function updateTimestamp() {
 }
 
 function updateEvents() {
-    attempts--;
     sendQuery("a:a", function (data) {
         /* `range=a:a` skips empty cells */
         /* `tq=select A` skips empty rows */
@@ -209,7 +208,8 @@ function updateEvents() {
             );
         }
         updateTimestamp();
-        waiting = false;
+        var seconds = [1, 1, 2, 3, 5, 8, 13, 21, 34, 0][9 - attempts];
+        waitUntil = now.getTime() + seconds * 1000;
         propagating = true;
     }, Object.keys(events).concat("dail"));
 }
@@ -258,7 +258,7 @@ function redrawChart() {
     });
 }
 
-function checkChart(id) {
+function updateChart(id) {
     if (events[id].data) {
         selectedEvent = id;
         redrawChart();
@@ -285,27 +285,30 @@ function keepFresh() {
     now = new Date();
     var lastReset = now - (now - 61200000) % 86400000; /* 10PT/17UTC */
     if (lastCheck < lastReset) {
-        if (!waiting && attempts > 0) {
-            waiting = true;
-            if (lastCheck > 0) {
-                document.documentElement.classList.add("stale");
-            }
+        if (lastCheck > 0) {
+            document.documentElement.classList.add("stale");
+        }
+        if (now > waitUntil && attempts > 0) {
+            waitUntil = Infinity;
+            attempts--;
             updateEvents();
         }
     }
     else if (propagating) {
+        waitUntil = 0;
+        attempts = 10;
         propagating = false;
         document.documentElement.classList.remove("stale");
         for (var id in events) {
             events[id].data = false;
         }
         if (selectedEvent) {
-            checkChart(selectedEvent);
+            updateChart(selectedEvent);
         }
-        var nextReset = new Date(lastReset + 86400000);
-        console.log("Next reset is" + formatDateTime(nextReset) + "."); /* for DST debugging */
+        var nextReset = new Date(lastReset + 86400000); /* for DST debugging */
+        console.log("Next reset is" + formatDateTime(nextReset) + ".");
     }
-    if (lastCheck > 0 && (
+    else if (lastCheck > 0 && (
         stampIssue.timezoneOffset != now.getTimezoneOffset() ||
         stampIssue.fullYear != now.getFullYear() ||
         stampIssue.month != now.getMonth() ||
@@ -322,7 +325,7 @@ function onClick(e) {
     }
     if (Object.keys(events).includes(e.id)) {
         if (!e.classList.contains("loading") && !e.classList.contains("error")) {
-            checkChart(e.id);
+            updateChart(e.id);
         }
     }
     else if (e != document.body) {
