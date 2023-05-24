@@ -1,37 +1,37 @@
 var events = {
     "rift": {
         "row": 3,
-        "range": "B3:B13,F3:M13", 
+        "range": "B4:B14,F4:M14", 
         "colors": ["#f97d9f", "#d96988", "#b95571", "#99415a", "gold", "#ecbe10", "goldenrod", "#c78c30"],
         "data": false
     },
     "char": {
         "row": 6,
-        "range": "B14:B24,E14:F24,K14:L24",
+        "range": "B15:B25,E15:F25,K15:L25",
         "colors": ["#f97d9f", "#b95571", "gold", "goldenrod"],
         "data": false
     },
     "elem": {
         "row": 9,
-        "range": "B25:B35,E25:F35", 
+        "range": "B26:B36,E26:F36", 
         "colors": ["gold", "silver"],
         "data": false
     },
     "medi": {
         "row": 12,
-        "range": "B36:B46,D36:D46", 
+        "range": "B37:B47,D37:D47", 
         "colors": ["#f97d9f"],
         "data": false
     },
     "smym": {
         "row": 15,
-        "range": "B47:B57,E47:F57", 
+        "range": "B48:B58,E48:F58", 
         "colors": ["gold", "silver"],
         "data": false
     },
     "holi": {
         "row": 18,
-        "range": "B58:B68,D58:H68", 
+        "range": "B59:B69,D59:H69", 
         "colors": ["#f97d9f", "gold", "silver"],
         "data": false
     }
