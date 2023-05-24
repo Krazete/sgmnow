@@ -37,6 +37,7 @@ var events = {
     }
 };
 var selectedEvent;
+var now;
 var lastCheck = 0;
 var waitBuffer = 0;
 var propagateUpdate = false;
@@ -91,6 +92,55 @@ function sendQuery(q, f, ids) {
     });
 }
 
+/* Timestamps */
+
+function daysSinceLocalEpoch(date) {
+    var offset = date.getTimezoneOffset() * 60000;
+    var offsetDate = date - offset;
+    return Math.floor(offsetDate / 86400000);
+}
+
+function formatDate(date) {
+    if ("Intl" in window) {
+        return Intl.DateTimeFormat([], {"dateStyle": "short"}).format(date);
+    }
+    return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
+}
+
+function formatTime(date) {
+    if ("Intl" in window) {
+        return Intl.DateTimeFormat([], {"timeStyle": "short"}).format(date);
+    }
+    return date.getHours() + ":" + date.getMinutes();
+}
+
+function formatDateTime(date) {
+    var today = daysSinceLocalEpoch(now);
+    var day = daysSinceLocalEpoch(date);
+    var addendum = " ";
+    if (day == today) {
+        addendum += "today";
+    }
+    else {
+        if (day == today - 1) {
+            addendum += "yesterday";
+        }
+        else if (day == today + 1) {
+            addendum += "tomorrow";
+        }
+        else {
+            addendum += "on " + formatDate(date);
+        }
+    }
+    addendum += " at " + formatTime(date);
+    return addendum;
+}
+
+function updateTimestamp(date) {
+    var timestamp = document.getElementById("timestamp");
+    timestamp.innerHTML = formatDateTime(date);
+}
+
 /* Events */
 
 function getIcon(name) {
@@ -130,51 +180,6 @@ function setEvent(id, title, contents, active) {
     else {
         box.classList.remove("active");
     }
-}
-
-function daysSinceLocalEpoch(date) {
-    var offset = date.getTimezoneOffset() * 60000;
-    var offsetDate = date - offset;
-    return Math.floor(offsetDate / 86400000);
-}
-
-function formatTime(date) {
-    if ("Intl" in window) {
-        return Intl.DateTimeFormat([], {"timeStyle": "short"}).format(date);
-    }
-    return date.getHours() + ":" + date.getMinutes();
-}
-
-function formatDate(date) {
-    if ("Intl" in window) {
-        return Intl.DateTimeFormat([], {"dateStyle": "short"}).format(date);
-    }
-    return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
-}
-
-function updateTimestamp(date) {
-    var today = daysSinceLocalEpoch(new Date());
-    var day = daysSinceLocalEpoch(date);
-
-    var timestamp = document.getElementById("timestamp");
-    var time = formatTime(date);
-    var addendum = " ";
-    if (day == today) {
-        addendum += "today";
-    }
-    else {
-        if (day == today - 1) {
-            addendum += "yesterday";
-        }
-        else if (day == today + 1) {
-            addendum += "tomorrow";
-        }
-        else {
-            addendum += "on " + formatDate(date);
-        }
-    }
-    addendum += " at " + time;
-    timestamp.innerHTML = addendum;
 }
 
 function updateEvents() {
@@ -270,15 +275,18 @@ function checkChart(id) {
 /* Listeners */
 
 function keepFresh() {
-    var now = Date.now();
-    var refreshTime = now - (now - 61200000) % 86400000; /* 10PT/17UTC */
-    if (lastCheck < refreshTime) {
+    now = new Date();
+    var lastReset = now - (now - 61200000) % 86400000; /* 10PT/17UTC */
+    if (lastCheck < lastReset) {
         if (lastCheck > 0) {
             document.documentElement.classList.add("stale");
         }
         updateEvents();
     }
     else if (propagateUpdate) {
+        var nextReset = new Date(lastReset + 86400000);
+        console.log("Next reset time is" + formatDateTime(nextReset) + "."); /* for DST debugging */
+
         propagateUpdate = false;
         document.documentElement.classList.remove("stale");
         for (var id in events) {
