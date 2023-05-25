@@ -45,15 +45,18 @@ var waitUntil = 0;
 var attempts = 10;
 var propagating = false;
 
-if ("Intl" in window) {
-    var dtf = Intl.DateTimeFormat("en-US", {
-        timeZone: "America/Los_Angeles",
-        timeZoneName: "long"
-    }).format();
-    if (dtf.indexOf("Standard") >= 0) { /* vs Daylight */
-        resetOffset = 64800000;
+function updateResetOffset() {
+    if ("Intl" in window) {
+        var dtf = Intl.DateTimeFormat("en-US", {
+            timeZone: "America/Los_Angeles",
+            timeZoneName: "long"
+        }).format();
+        if (dtf.indexOf("Standard") >= 0) { /* vs Daylight */
+            resetOffset = 64800000;
+        }
     }
 }
+updateResetOffset();
 
 google.charts.load("current", {packages: ["corechart"]});
 google.charts.setOnLoadCallback(keepFresh);
@@ -150,6 +153,17 @@ function formatDateTime(date) {
 
 /* Events */
 
+function getZ() { /* too robust tbh */
+    if (resetOffset == 0) {
+        return "Z";
+    }
+    var a = Math.abs(resetOffset);
+    var h = Math.floor(a / 3600000).toString().padStart(2, "0");
+    var m = Math.floor(a % 3600000 / 60000).toString().padStart(2, "0");
+    var sign = resetOffset > 0 ? "-" : "+";
+    return sign + h + ":" + m;
+}
+
 function getIcon(name) {
     var img = new Image();
     img.src = "https://krazete.github.io/sgm/image/official/" + name + ".png";
@@ -203,7 +217,7 @@ function updateEvents() {
     sendQuery("a:a", function (data) {
         /* `range=a:a` skips empty cells */
         /* `tq=select A` skips empty rows */
-        lastCheck = new Date(data.getValue(0, 0) + "-17:00");
+        lastCheck = new Date(data.getValue(0, 0) + getZ());
         setEvent(
             "dail",
             data.getValue(1, 0),
@@ -325,6 +339,7 @@ function keepFresh() {
         stampIssue.month != now.getMonth() ||
         stampIssue.date != now.getDate()
     ) {
+        updateResetOffset();
         updateTimestamp();
     }
     requestAnimationFrame(keepFresh);
