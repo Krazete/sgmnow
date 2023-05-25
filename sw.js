@@ -16,8 +16,9 @@ self.addEventListener("fetch", function (event) {
         return r || fetch(request);
     });
     event.respondWith(response.catch(function (error) {
-        return new Response("<body style=\"background: #1b2a41; color: white;\">You are offline.</body>", {
-            headers: {"Content-Type": "text/html"}
-        });
+        return new Response(
+            "<body style=\"background: #1b2a41; color: white; text-align: center;\">You are offline.</body>",
+            {headers: {"Content-Type": "text/html"}}
+        );
     }));
 });
