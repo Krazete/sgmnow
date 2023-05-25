@@ -153,13 +153,13 @@ a {
 }
 
 .links-title {
-    margin: 12px 0 4px 0;
+    margin: 12px 0 6px 0;
 }
 
 .flex.me > a,
 .flex.hvs > a {
     background-color: #263b5a;
-    padding: 3px 6px;
+    padding: 6px;
     margin: 1px;
     border-radius: 5px;
 }
