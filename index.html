@@ -1,5 +1,7 @@
+<!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="A site to quickly check current events and score histories in Skullgirls Mobile.">
     <title>SGM Now</title>
@@ -7,6 +9,14 @@
     <link rel="stylesheet" href="./index.css">
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript" src="./index.js"></script>
+    <!--PWA-->
+    <meta name="theme-color" content="#1b2a41">
+    <link rel="manifest" href="./manifest.json">
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("./sw.js", {scope: "./"});
+        }
+    </script>
 </head>
 <body>
     <div class="container">
