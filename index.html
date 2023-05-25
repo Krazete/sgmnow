@@ -16,6 +16,9 @@
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register("./sw.js", {scope: "./"});
         }
+        if ("onLine" in navigator && !navigator.onLine) {
+            location.reload();
+        }
     </script>
 </head>
 <body>
