@@ -123,6 +123,7 @@ a {
     animation: tread 1s linear infinite;
     color: black;
 }
+#chart.error:after,
 .error:after {
     content: 'Error';
     background-image: radial-gradient(rgba(0, 0, 0, 0.67), black);
