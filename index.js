@@ -153,7 +153,7 @@ function formatDateTime(date) {
 
 /* Events */
 
-function getZ() { /* too robust tbh */
+function getZ() { /* too robust tbh; this won't always match sheet time but w/e */
     if (resetOffset == 0) {
         return "Z";
     }
