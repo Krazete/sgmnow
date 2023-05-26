@@ -42,7 +42,8 @@ var resetOffset = 61200000;
 var lastCheck = 0;
 var stampIssue = {};
 var waitUntil = 0;
-var attempts = 10;
+var waitPrev = 0;
+var waitTime = 1;
 var propagating = false;
 
 function updateResetOffset() {
@@ -234,8 +235,10 @@ function updateEvents() {
             );
         }
         updateTimestamp();
-        var seconds = [1, 1, 2, 3, 5, 8, 13, 21, 34, 0][9 - attempts];
-        waitUntil = now.getTime() + seconds * 1000;
+        waitUntil = now.getTime() + waitTime * 1000;
+        var w = waitPrev;
+        waitPrev = waitTime;
+        waitTime += w;
         propagating = true;
     }, Object.keys(events).concat("dail"));
 }
@@ -314,15 +317,15 @@ function keepFresh() {
         if (lastCheck > 0) {
             document.documentElement.classList.add("stale");
         }
-        if (now > waitUntil && attempts > 0) {
+        if (now > waitUntil) {
             waitUntil = Infinity;
-            attempts--;
             updateEvents();
         }
     }
     else if (propagating) {
         waitUntil = 0;
-        attempts = 10;
+        waitPrev = 0;
+        waitTime = 1;
         propagating = false;
         document.documentElement.classList.remove("stale");
         for (var id in events) {
