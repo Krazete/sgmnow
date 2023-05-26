@@ -362,3 +362,4 @@ function onClick(e) {
 
 window.addEventListener("click", onClick);
 window.addEventListener("resize", redrawChart);
+window.addEventListener("orientationchange", redrawChart);
