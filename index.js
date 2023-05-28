@@ -288,6 +288,10 @@ function redrawChart() {
 }
 
 function updateChart(id) {
+    var box = document.getElementById(id);
+    if (box.classList.contains("loading") || box.classList.contains("error")) {
+        return;
+    }
     if (events[id].data) {
         selectedEvent = id;
         redrawChart();
@@ -349,19 +353,15 @@ function keepFresh() {
     requestAnimationFrame(keepFresh);
 }
 
-function onClick(e) {
-    if (typeof e.target != "undefined") {
-        e = e.target;
+function initBoxes() {
+    function clickBox() {
+        updateChart(this.id);
     }
-    if (Object.keys(events).includes(e.id)) {
-        if (!e.classList.contains("loading") && !e.classList.contains("error")) {
-            updateChart(e.id);
-        }
-    }
-    else if (e != document.body) {
-        onClick(e.parentElement);
+    for (var id in events) {
+        var box = document.getElementById(id);
+        box.addEventListener("click", clickBox);
     }
 }
 
-window.addEventListener("click", onClick);
+window.addEventListener("DOMContentLoaded", initBoxes);
 window.addEventListener("resize", redrawChart);
