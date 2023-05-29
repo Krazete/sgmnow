@@ -192,7 +192,7 @@ function setEvent(id, title, contents, active) {
             var icon = getIcon("ElementalIcon" + content, content);
             boxContent.appendChild(icon);
         }
-        else if (id == "medi) {
+        else if (id == "medi") {
             var icon = new Image();
             icon.src = "https://krazete.github.io/sgmtree/img/SoftCurrency.png";
             icon.alt = "Canopy Coin";
