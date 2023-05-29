@@ -37,9 +37,9 @@ var events = {
     }
 };
 var selectedEvent;
-var now;
+var now = new Date();
 var resetOffset = 61200000;
-var lastCheck = 0;
+var lastEdit = new Date(0);
 var stampIssue = {};
 var waitUntil = 0;
 var waitPrev = 0;
@@ -213,11 +213,17 @@ function setEvent(id, title, contents, active) {
     else {
         box.classList.remove("active");
     }
+
+    localStorage.setItem("sgmnow-" + id, JSON.stringify({
+        title: title,
+        contents: contents,
+        active: active
+    }));
 }
 
 function updateTimestamp() {
     var timestamp = document.getElementById("timestamp");
-    timestamp.innerHTML = formatDateTime(lastCheck);
+    timestamp.innerHTML = formatDateTime(lastEdit);
 
     stampIssue.timezoneOffset = now.getTimezoneOffset();
     stampIssue.fullYear = now.getFullYear();
@@ -229,7 +235,7 @@ function updateEvents() {
     sendQuery("a:a", function (data) {
         /* `range=a:a` skips empty cells */
         /* `tq=select A` skips empty rows */
-        lastCheck = new Date(data.getValue(0, 0) + getZ());
+        lastEdit = new Date(data.getValue(0, 0) + getZ());
         setEvent(
             "dail",
             data.getValue(1, 0),
@@ -245,6 +251,8 @@ function updateEvents() {
             );
         }
         updateTimestamp();
+        localStorage.setItem("sgmnow-time", lastEdit.getTime());
+
         waitUntil = now.getTime() + waitTime * 1000;
         var w = waitPrev;
         waitPrev = waitTime;
@@ -327,8 +335,8 @@ function updateChart(id) {
 function keepFresh() {
     now = new Date();
     var lastReset = now - (now - resetOffset) % 86400000; /* 10PT/17UTC */
-    if (lastCheck < lastReset) {
-        if (lastCheck > 0) {
+    if (lastEdit < lastReset) {
+        if (lastEdit > 0) {
             document.documentElement.classList.add("stale");
         }
         if (now > waitUntil) {
@@ -370,6 +378,21 @@ function initBoxes() {
     for (var id in events) {
         var box = document.getElementById(id);
         box.addEventListener("click", clickBox);
+    }
+
+    function setStoredEvent(id) {
+        var e = JSON.parse(localStorage.getItem("sgmnow-" + id));
+        setEvent(id, e.title, e.contents, e.active);
+        document.getElementById(id).classList.remove("loading");
+    }
+    var t = new Date(parseInt(localStorage.getItem("sgmnow-time")) || 0);
+    var lastReset = now - (now - resetOffset) % 86400000;
+    if (t >= lastReset) {
+        lastEdit = t;
+        setStoredEvent("dail");
+        for (var id in events) {
+            setStoredEvent(id);
+        }
     }
 }
 
