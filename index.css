@@ -59,6 +59,10 @@ a {
     vertical-align: text-bottom;
     width: 20px;
     margin-right: 5px;
+    filter: grayscale(1);
+}
+.event.active img {
+    filter: none;
 }
 
 /* Chart */
