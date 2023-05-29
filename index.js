@@ -192,6 +192,16 @@ function setEvent(id, title, contents, active) {
             var icon = getIcon("ElementalIcon" + content, content);
             boxContent.appendChild(icon);
         }
+        else if (id == "medi) {
+            var icon = new Image();
+            icon.src = "https://krazete.github.io/sgmtree/img/SoftCurrency.png";
+            icon.alt = "Canopy Coin";
+            boxContent.appendChild(icon);
+        }
+        else if (id == "smym") {
+            var icon = getIcon("BB-Frame1", "Blockbuster");
+            boxContent.appendChild(icon);
+        }
         boxContent.innerHTML += content;
         boxContents.appendChild(boxContent);
     }
