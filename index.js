@@ -304,6 +304,7 @@ function redrawChart() {
             position: thin ? "bottom" : "right"
         },
         hAxis: {
+            format: "MMMM yyyy",
             textStyle: {color: "white"},
             gridlines: {color: "#1b2a41"},
             minorGridlines: {color: "#263b5a"}
