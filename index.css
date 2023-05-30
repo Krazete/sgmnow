@@ -158,6 +158,10 @@ a {
 #ticker {
     white-space: pre;
 }
+#reload {
+    color: skyblue;
+    cursor: pointer;
+}
 
 .links-title {
     margin: 12px 0 6px 0;

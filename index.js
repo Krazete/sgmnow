@@ -46,6 +46,16 @@ var waitPrev = 0;
 var waitTime = 1;
 var propagating = false;
 
+function deter() {
+    if (confirm("Reload sheet data?")) {
+        lastEdit = 0;
+    }
+}
+var reload = document.createElement("span");
+reload.id = "reload";
+reload.innerHTML = "↻";
+reload.addEventListener("click", deter);
+
 function updateResetOffset() {
     if ("Intl" in window) {
         var dtf = Intl.DateTimeFormat("en-US", {
@@ -235,6 +245,7 @@ function updateTicker() {
     var ticker = document.getElementById("ticker");
     if (waitUntil == 0) {
         ticker.innerHTML = "";
+        ticker.appendChild(reload);
     }
     else if (waitUntil == Infinity) {
         ticker.innerHTML = "Fetching data...";
@@ -410,6 +421,7 @@ function initBoxes() {
         for (var id in events) {
             setStoredEvent(id);
         }
+        updateTicker();
     }
 }
 

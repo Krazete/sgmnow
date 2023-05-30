@@ -11,7 +11,7 @@ This is possible despite normal API staleness due to an Apps Script trigger whic
 
 Scheduling errors or delays may occur due to certain game updates or Daylight Saving Time offsets.
 
-Fetched schedule data is saved in local storage until next reset, so it may take up to a day for the website to reflect sheet corrections or other alterations. Chart data is not saved to local storage and will be freshly fetched after page refresh or reset.
+Fetched schedule data is saved in local storage until next reset, so sheet corrections or other alterations will not be immediately reflected on the site. Click the arrow to the right of the timestamp to manually reload.
 
 <details>
 <summary>Concerns</summary>
