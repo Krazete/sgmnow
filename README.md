@@ -11,8 +11,6 @@ This is possible despite normal API staleness due to an Apps Script trigger whic
 
 Scheduling errors or delays may occur due to certain game updates or Daylight Saving Time offsets.
 
-Fetched schedule data is saved in local storage until next reset, so sheet corrections or other alterations will not be immediately reflected on the site. Click the arrow to the right of the timestamp to manually reload.
-
 <details>
 <summary>Concerns</summary>
 There are several ways for this website to fail.

@@ -1,3 +1,6 @@
+google.charts.load("current", {packages: ["corechart"]});
+google.charts.setOnLoadCallback(keepFresh);
+
 var events = {
     rift: {
         row: 3,
@@ -46,16 +49,6 @@ var waitPrev = 0;
 var waitTime = 1;
 var propagating = false;
 
-function deter() {
-    if (confirm("Reload sheet data?")) {
-        lastEdit = 0;
-    }
-}
-var reload = document.createElement("span");
-reload.id = "reload";
-reload.innerHTML = "↻";
-reload.addEventListener("click", deter);
-
 function updateResetOffset() {
     if ("Intl" in window) {
         var dtf = Intl.DateTimeFormat("en-US", {
@@ -68,9 +61,6 @@ function updateResetOffset() {
     }
 }
 updateResetOffset();
-
-google.charts.load("current", {packages: ["corechart"]});
-google.charts.setOnLoadCallback(keepFresh);
 
 function sendQuery(q, f, ids) {
     var elements = ids.map(id => document.getElementById(id));
@@ -245,7 +235,6 @@ function updateTicker() {
     var ticker = document.getElementById("ticker");
     if (waitUntil == 0) {
         ticker.innerHTML = "";
-        ticker.appendChild(reload);
     }
     else if (waitUntil == Infinity) {
         ticker.innerHTML = "Fetching data...";
@@ -256,7 +245,7 @@ function updateTicker() {
     }
 }
 
-function updateEvents() {
+function updateEvents(stealthy) {
     sendQuery("a:a", function (data) {
         /* `range=a:a` skips empty cells */
         /* `tq=select A` skips empty rows */
@@ -283,7 +272,7 @@ function updateEvents() {
         waitPrev = waitTime;
         waitTime += w;
         propagating = true;
-    }, Object.keys(events).concat("dail"));
+    }, stealthy ? [] : Object.keys(events).concat("dail"));
 }
 
 /* Charts */
@@ -413,6 +402,14 @@ function initBoxes() {
         setEvent(id, e.title, e.contents, e.active);
         document.getElementById(id).classList.remove("loading");
     }
+    function reaffirmEvents() {
+        try {
+            updateEvents(true);
+        }
+        catch (e) {
+            requestAnimationFrame(reaffirmEvents);
+        }
+    }
     var t = new Date(parseInt(localStorage.getItem("sgmnow-time")) || 0);
     var lastReset = now - (now - resetOffset) % 86400000;
     if (t >= lastReset && t < now) { /* `t < now` skips erroneous "future" data */
@@ -421,7 +418,7 @@ function initBoxes() {
         for (var id in events) {
             setStoredEvent(id);
         }
-        updateTicker();
+        reaffirmEvents();
     }
 }
 
