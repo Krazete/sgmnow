@@ -64,6 +64,13 @@ updateResetOffset();
 
 function sendQuery(q, f, ids) {
     var elements = ids.map(id => document.getElementById(id));
+    if ("onLine" in navigator && !navigator.onLine) {
+        elements.forEach(e => {
+            e.classList.remove("loading");
+            e.classList.add("error");
+        });
+        return;
+    }
     elements.forEach(e => {
         e.classList.remove("error");
         e.classList.add("loading");
