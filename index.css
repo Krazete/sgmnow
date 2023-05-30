@@ -155,6 +155,9 @@ a {
     font-size: 10px;
     text-align: right;
 }
+#ticker {
+    white-space: pre;
+}
 
 .links-title {
     margin: 12px 0 6px 0;

@@ -231,6 +231,20 @@ function updateTimestamp() {
     stampIssue.date = now.getDate();
 }
 
+function updateTicker() {
+    var ticker = document.getElementById("ticker");
+    if (waitUntil == 0) {
+        ticker.innerHTML = "";
+    }
+    else if (waitUntil == Infinity) {
+        ticker.innerHTML = "Fetching data...";
+    }
+    else {
+        var s = Math.ceil((waitUntil - now) / 1000);
+        ticker.innerHTML = "Wait " + s + "s.";
+    }
+}
+
 function updateEvents() {
     sendQuery("a:a", function (data) {
         /* `range=a:a` skips empty cells */
@@ -343,6 +357,7 @@ function keepFresh() {
             waitUntil = Infinity;
             updateEvents();
         }
+        updateTicker();
     }
     else if (propagating) {
         waitUntil = 0;
@@ -353,6 +368,7 @@ function keepFresh() {
         for (var id in events) {
             events[id].data = false;
         }
+        updateTicker();
         if (selectedEvent) {
             updateChart(selectedEvent);
         }
@@ -387,7 +403,7 @@ function initBoxes() {
     }
     var t = new Date(parseInt(localStorage.getItem("sgmnow-time")) || 0);
     var lastReset = now - (now - resetOffset) % 86400000;
-    if (t >= lastReset) {
+    if (t >= lastReset && t < now) { /* `t < now` skips erroneous "future" data */
         lastEdit = t;
         setStoredEvent("dail");
         for (var id in events) {
