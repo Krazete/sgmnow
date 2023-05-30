@@ -1,6 +1,7 @@
 {
     "lang": "en-US",
     "name": "SGM Now",
+    "short_name": "SGM Now",
     "description": "A site to quickly check current events and score histories in Skullgirls Mobile.",
     "start_url": "./",
     "background_color": "#1b2a41",
@@ -9,12 +10,19 @@
     "icons": [
         {
             "src": "./512.png",
+            "type": "image/png",
             "sizes": "512x512"
         },
         {
-            "src": "./ArtCalendar.png",
-            "sizes": "60x64",
+            "src": "./512m.png",
+            "type": "image/png",
+            "sizes": "512x512",
             "purpose": "maskable"
+        },
+        {
+            "src": "./ArtCalendar.png",
+            "type": "image/png",
+            "sizes": "125x123"
         }
     ]
 }
