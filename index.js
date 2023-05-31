@@ -116,7 +116,7 @@ function sendQuery(q, f, ids) {
     ].join("");
 
     var query = new google.visualization.Query(url);
-    query.send(function (response) { /* why doesn't query.send have error handling? */
+    query.send(function (response) {
         elements.forEach(e => e.classList.remove("loading"));
         if (response.isError()) {
             console.error(
@@ -140,6 +140,10 @@ function sendQuery(q, f, ids) {
             }
         }
     });
+    // query.send causes an uncatchable error
+    // if navigator.onLine is a false positive and
+    // if google scripts load from the browser cache
+    // e.g. simulate offline in developer console and then ctrl+shift+r
 }
 
 /* Timestamps */
@@ -448,16 +452,18 @@ function initBoxes() {
         }
     }
     lastEdit = new Date(parseInt(localStorage.getItem("sgmnow-time")) || 0);
-    var lastReset = now - (now - resetOffset) % 86400000;
-    if (lastEdit < lastReset && lastEdit > 0) {
-        document.documentElement.classList.add("stale");
+    if (lastEdit > 0) {
+        var lastReset = now - (now - resetOffset) % 86400000;
+        if (lastEdit < lastReset) {
+            document.documentElement.classList.add("stale");
+        }
+        setStoredEvent("dail");
+        for (var id in events) {
+            setStoredEvent(id);
+        }
+        updateTimestamp();
+        reaffirmEvents();
     }
-    setStoredEvent("dail");
-    for (var id in events) {
-        setStoredEvent(id);
-    }
-    updateTimestamp();
-    reaffirmEvents();
 }
 
 function disconnect() {
