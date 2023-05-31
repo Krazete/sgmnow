@@ -82,7 +82,8 @@ function sendQuery(q, f, ids) {
         e.classList.remove("error");
         e.classList.add("loading");
     });
-    if ("onLine" in navigator && !navigator.onLine) {
+    var offlineWhenSent = "onLine" in navigator && !navigator.onLine;
+    if (offlineWhenSent) {
         elements.forEach(e => {
             e.classList.remove("loading");
             e.classList.add("error");
@@ -123,7 +124,9 @@ function sendQuery(q, f, ids) {
                 response.getMessage(),
                 response.getDetailedMessage()
             );
-            elements.forEach(e => e.classList.add("error"));
+            if (!offlineWhenSent) {
+                elements.forEach(e => e.classList.add("error"));
+            }
         }
         else {
             var data = response.getDataTable();
