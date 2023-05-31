@@ -57,8 +57,10 @@ function updateResetOffset() {
         }).format();
         if (dtf.indexOf("Standard") >= 0) { /* vs Daylight */
             resetOffset = 64800000;
+            return;
         }
     }
+    resetOffset = 61200000;
 }
 updateResetOffset();
 
