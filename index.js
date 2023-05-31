@@ -167,6 +167,9 @@ function getZ() { /* too robust tbh; this won't always match sheet time but w/e 
     if (resetOffset == 0) {
         return "Z";
     }
+    else if (resetOffset <= -86400000 || resetOffset >= 86400000) { /* max offset is 24:00 */
+        updateResetOffset(); /* for debug case `resetOffset = now` (force stale) */
+    }
     var a = Math.abs(resetOffset);
     var h = Math.floor(a / 3600000).toString().padStart(2, "0");
     var m = Math.floor(a % 3600000 / 60000).toString().padStart(2, "0");
