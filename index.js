@@ -420,6 +420,7 @@ function keepFresh() {
         if (lastLastEdit < lastEdit || lastLastEdit > lastEdit) { /* dates never equal */
             for (var id in events) {
                 events[id].data = false;
+                localStorage.removeItem("sgmnow-" + id + "-chart");
             }
         }
         updateTicker();
