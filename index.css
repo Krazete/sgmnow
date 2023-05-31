@@ -26,7 +26,7 @@ a {
 /* Event */
 
 .event {
-    background-color: grey;
+    background-color: gray;
     color: black;
     box-shadow: inset 0 0 5px 1px black;
     min-width: 225px;
@@ -81,12 +81,23 @@ a {
 
 /* Status */
 
-.stale {
-    filter: sepia(0.5);
+html.stale {
+    filter: sepia(0.67);
+}
+html.stale #timestamp {
+    color: yellow;
 }
 
-.stale #timestamp {
-    color: yellow;
+html.offline body {
+    background: black;
+}
+html.offline #ticker:before {
+    content: 'You are offline. ';
+    color: gray;
+}
+html.offline #chart.error:after,
+html.offline .error:after {
+    content: 'Offline';
 }
 
 #chart:empty,

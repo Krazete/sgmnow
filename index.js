@@ -1,5 +1,13 @@
-google.charts.load("current", {packages: ["corechart"]});
-google.charts.setOnLoadCallback(keepFresh);
+if ("onLine" in navigator && !navigator.onLine) {
+    disconnect();
+    window.addEventListener("online", e => location.reload()); /* ensure loader.js is loaded */
+}
+else {
+    google.charts.load("current", {packages: ["corechart"]});
+    google.charts.setOnLoadCallback(keepFresh);
+    window.addEventListener("offline", disconnect);
+    window.addEventListener("online", reconnect);
+}
 
 var events = {
     rift: {
@@ -48,6 +56,7 @@ var waitUntil = 0;
 var waitPrev = 0;
 var waitTime = 1;
 var propagating = false;
+var offlineErrors = [];
 
 function updateResetOffset() {
     if ("Intl" in window) {
@@ -70,6 +79,7 @@ function sendQuery(q, f, ids) {
         elements.forEach(e => {
             e.classList.remove("loading");
             e.classList.add("error");
+            offlineErrors.push(e);
         });
         return;
     }
@@ -245,7 +255,7 @@ function updateTimestamp() {
 
 function updateTicker() {
     var ticker = document.getElementById("ticker");
-    if (waitUntil == 0) {
+    if (waitUntil == 0 || "onLine" in navigator && !navigator.onLine) {
         ticker.innerHTML = "";
     }
     else if (waitUntil == Infinity) {
@@ -422,16 +432,32 @@ function initBoxes() {
             requestAnimationFrame(reaffirmEvents);
         }
     }
-    var t = new Date(parseInt(localStorage.getItem("sgmnow-time")) || 0);
+    lastEdit = new Date(parseInt(localStorage.getItem("sgmnow-time")) || 0);
     var lastReset = now - (now - resetOffset) % 86400000;
-    if (t >= lastReset && t < now) { /* `t < now` skips erroneous "future" data */
-        lastEdit = t;
-        setStoredEvent("dail");
-        for (var id in events) {
-            setStoredEvent(id);
-        }
-        reaffirmEvents();
+    if (lastEdit < lastReset && lastEdit > 0) {
+        document.documentElement.classList.add("stale");
     }
+    setStoredEvent("dail");
+    for (var id in events) {
+        setStoredEvent(id);
+    }
+    updateTimestamp();
+    reaffirmEvents();
+}
+
+function disconnect() {
+    document.documentElement.classList.add("offline");
+}
+
+function reconnect() {
+    document.documentElement.classList.remove("offline");
+    if (waitUntil == Infinity) {
+        waitUntil = 0;
+    }
+    offlineErrors.forEach(e => { /* probably only clears chart */
+        e.classList.remove("error");
+    });
+    offlineErrors = [];
 }
 
 window.addEventListener("DOMContentLoaded", initBoxes);

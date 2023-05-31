@@ -1,5 +1,8 @@
 self.addEventListener("install", function (event) {
     self.skipWaiting();
+    event.waitUntil(caches.open("sgmnow").then(function (cache) {
+        return cache.addAll(["./", "./index.css", "./index.js"]);
+    }));
 });
 
 self.addEventListener("activate", function (event) {
@@ -8,19 +11,24 @@ self.addEventListener("activate", function (event) {
 
 self.addEventListener("fetch", function (event) {
     var request = event.request;
-    var accept = request.headers.get("accept");
-    if (request.mode !== "navigate" || request.method !== "GET" || (accept && !accept.includes("text/html"))) {
+    var url = new URL(request.url);
+    if (request.method !== "GET" || url.host !== location.host) {
         return;
     }
     var response = Promise.resolve(event.preloadResponse).then(function (r) {
         return r || fetch(request);
     });
-    event.respondWith(response.catch(function (error) {
-        return new Response(
-            '<head><meta name="viewport" content="width=device-width, initial-scale=1"></head>' +
-            '<body style="background:#1b2a41; color:white; text-align:center">You are offline.</body>' +
-            '<script>window.addEventListener("online", e => location.reload());</script>',
-            {headers: {"Content-Type": "text/html"}}
-        );
+    event.respondWith(caches.open("sgmnow").then(function (cache) {
+        return response.then(function (r) {
+            cache.put(request, r.clone());
+            return r;
+        }).catch(function (error) {
+            return cache.match(request).then(function (match) {
+                if (!match || !match.ok) {
+                    return Response.error();
+                }
+                return match;
+            });
+        });
     }));
 });
