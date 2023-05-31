@@ -7,7 +7,10 @@ else {
     window.addEventListener("online", reconnect);
 }
 
-if (typeof google != "undefined") { /* skip if navigator.onLine is a false positive */
+if (typeof google == "undefined") {
+    window.addEventListener("load", keepFresh);
+}
+else { /* skip if navigator.onLine is a false positive */
     google.charts.load("current", {packages: ["corechart"]});
     google.charts.setOnLoadCallback(keepFresh);
 }
