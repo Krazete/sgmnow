@@ -3,10 +3,13 @@ if ("onLine" in navigator && !navigator.onLine) {
     window.addEventListener("online", e => location.reload()); /* ensure loader.js is loaded */
 }
 else {
-    google.charts.load("current", {packages: ["corechart"]});
-    google.charts.setOnLoadCallback(keepFresh);
     window.addEventListener("offline", disconnect);
     window.addEventListener("online", reconnect);
+}
+
+if (typeof google != "undefined") { /* skip if navigator.onLine is a false positive */
+    google.charts.load("current", {packages: ["corechart"]});
+    google.charts.setOnLoadCallback(keepFresh);
 }
 
 var events = {
@@ -75,18 +78,27 @@ updateResetOffset();
 
 function sendQuery(q, f, ids) {
     var elements = ids.map(id => document.getElementById(id));
+    elements.forEach(e => {
+        e.classList.remove("error");
+        e.classList.add("loading");
+    });
     if ("onLine" in navigator && !navigator.onLine) {
         elements.forEach(e => {
             e.classList.remove("loading");
             e.classList.add("error");
             offlineErrors.push(e);
         });
+        /* no return; since navigator.onLine could be a false negative */
+    }
+
+    if (typeof google == "undefined") { /* if navigator.onLine is a false positive */
+        console.error("The google object was not loaded.");
+        elements.forEach(e => {
+            e.classList.remove("loading");
+            e.classList.add("error");
+        });
         return;
     }
-    elements.forEach(e => {
-        e.classList.remove("error");
-        e.classList.add("loading");
-    });
 
     var sheetID = "1hpmUc__uYo0-tq10tampy7CDIfALn6N5_sMELTBlTOs";
     var pageName = "now";
@@ -103,7 +115,7 @@ function sendQuery(q, f, ids) {
     ].join("");
 
     var query = new google.visualization.Query(url);
-    query.send(function (response) {
+    query.send(function (response) { /* why doesn't query.send have error handling? */
         elements.forEach(e => e.classList.remove("loading"));
         if (response.isError()) {
             console.error(
