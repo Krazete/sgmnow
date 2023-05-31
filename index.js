@@ -56,6 +56,7 @@ var events = {
 var selectedEvent;
 var now = new Date();
 var resetOffset = 61200000;
+var lastLastEdit = 0;
 var lastEdit = new Date(0);
 var stampIssue = {};
 var waitUntil = 0;
@@ -290,6 +291,7 @@ function updateTicker() {
 }
 
 function updateEvents(stealthy) {
+    lastLastEdit = lastEdit;
     sendQuery("a:a", function (data) {
         /* `range=a:a` skips empty cells */
         /* `tq=select A` skips empty rows */
@@ -327,6 +329,9 @@ function redrawChart() {
     }
     var element = document.getElementById("chart");
     element.classList.remove("error");
+    if (!("getNumberOfRows" in events[selectedEvent].data)) { /* then it's JSON parsed storage */
+        events[selectedEvent].data = new google.visualization.DataTable(events[selectedEvent].data);
+    }
     if (events[selectedEvent].data.getNumberOfRows() <= 1) {
         var chart = new google.visualization.ColumnChart(element);
     }
@@ -385,6 +390,8 @@ function updateChart(id) {
             events[id].data = data;
             selectedEvent = id;
             redrawChart();
+
+            localStorage.setItem("sgmnow-" + id + "-chart", data.toJSON());
         }, ["chart"]);
     }
 }
@@ -410,8 +417,10 @@ function keepFresh() {
         waitTime = 1;
         propagating = false;
         document.documentElement.classList.remove("stale");
-        for (var id in events) {
-            events[id].data = false;
+        if (lastLastEdit < lastEdit || lastLastEdit > lastEdit) { /* dates never equal */
+            for (var id in events) {
+                events[id].data = false;
+            }
         }
         updateTicker();
         if (selectedEvent) {
@@ -465,6 +474,9 @@ function initBoxes() {
             setStoredEvent(id);
         }
         updateTimestamp();
+        for (var id in events) {
+            events[id].data = JSON.parse(localStorage.getItem("sgmnow-" + id + "-chart"));
+        }
         reaffirmEvents();
     }
 }
