@@ -97,7 +97,7 @@ function sendQuery(q, f, ids) {
     }
 
     if (typeof google == "undefined") { /* if navigator.onLine is a false positive */
-        console.error("The google object was not loaded.");
+        console.error("The google object was not loaded. Cannot send Query.");
         elements.forEach(e => {
             e.classList.remove("loading");
             e.classList.add("error");
@@ -330,6 +330,11 @@ function redrawChart() {
     var element = document.getElementById("chart");
     element.classList.remove("error");
     if (!("getNumberOfRows" in events[selectedEvent].data)) { /* then it's JSON parsed storage */
+        if (typeof google == "undefined") {
+            console.error("The google object was not loaded. Cannot create DataTable.");
+            document.getElementById("chart").classList.add("error");
+            return;
+        }
         events[selectedEvent].data = new google.visualization.DataTable(events[selectedEvent].data);
     }
     if (events[selectedEvent].data.getNumberOfRows() <= 1) {
