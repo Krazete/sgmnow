@@ -6,7 +6,7 @@ self.addEventListener("install", function (event) {
 });
 
 self.addEventListener("activate", function (event) {
-    self.clients.claim();
+    event.waitUntil(clients.claim());
 });
 
 self.addEventListener("fetch", function (event) {
