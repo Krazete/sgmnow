@@ -400,9 +400,6 @@ function updateChart(id, stealthy) {
                     i--;
                 }
             }
-            if (events[id].data && events[id].data.toJSON() == data.toJSON()) {
-                return;
-            }
             events[id].data = data;
             if (!stealthy) {
                 selectedEvent = id;
