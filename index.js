@@ -329,6 +329,8 @@ function redrawChart() {
     }
     var element = document.getElementById("chart");
     element.classList.remove("error");
+
+    var reaffirmChart = false;
     if (!("getNumberOfRows" in events[selectedEvent].data)) { /* then it's JSON parsed storage */
         if (typeof google == "undefined") {
             console.error("The google object was not loaded. Cannot create DataTable.");
@@ -336,7 +338,9 @@ function redrawChart() {
             return;
         }
         events[selectedEvent].data = new google.visualization.DataTable(events[selectedEvent].data);
+        reaffirmChart = true;
     }
+
     if (events[selectedEvent].data.getNumberOfRows() <= 1) {
         var chart = new google.visualization.ColumnChart(element);
     }
@@ -372,14 +376,18 @@ function redrawChart() {
         colors: events[selectedEvent].colors,
         lineWidth: 5
     });
+
+    if (reaffirmChart) { /* possible recursion hazard */
+        updateChart(selectedEvent, true);
+    }
 }
 
-function updateChart(id) {
+function updateChart(id, stealthy) {
     var box = document.getElementById(id);
     if (box.classList.contains("loading") || box.classList.contains("error")) {
         return;
     }
-    if (events[id].data) {
+    if (events[id].data && !stealthy) {
         selectedEvent = id;
         redrawChart();
     }
@@ -392,12 +400,15 @@ function updateChart(id) {
                     i--;
                 }
             }
+            if (events[id].data && events[id].data.toJSON() == data.toJSON()) {
+                return;
+            }
             events[id].data = data;
             selectedEvent = id;
             redrawChart();
 
             localStorage.setItem("sgmnow-" + id + "-chart", data.toJSON());
-        }, ["chart"]);
+        }, stealthy ? [] : ["chart"]);
     }
 }
 
@@ -422,7 +433,7 @@ function keepFresh() {
         waitTime = 1;
         propagating = false;
         document.documentElement.classList.remove("stale");
-        if (lastLastEdit < lastEdit || lastLastEdit > lastEdit) { /* dates never equal */
+        if (lastLastEdit < lastReset) { /* stored chart data is stale */
             for (var id in events) {
                 events[id].data = false;
                 localStorage.removeItem("sgmnow-" + id + "-chart");
