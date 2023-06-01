@@ -9,6 +9,12 @@
     "display": "standalone",
     "icons": [
         {
+            "src": "./512.svg",
+            "type": "image/svg+xml",
+            "sizes": "any",
+            "purpose": "any"
+        },
+        {
             "src": "./512.png",
             "type": "image/png",
             "sizes": "512x512",
