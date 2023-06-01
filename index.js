@@ -422,7 +422,7 @@ function keepFresh() {
         }
         if (now > waitUntil) {
             waitUntil = Infinity;
-            updateEvents();
+            updateEvents("onLine" in navigator && !navigator.onLine);
         }
         updateTicker();
     }
