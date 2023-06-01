@@ -21,12 +21,6 @@
             "purpose": "any"
         },
         {
-            "src": "./512m.png",
-            "type": "image/png",
-            "sizes": "512x512",
-            "purpose": "maskable"
-        },
-        {
             "src": "./ArtCalendar.png",
             "type": "image/png",
             "sizes": "125x123"
