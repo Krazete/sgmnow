@@ -404,7 +404,9 @@ function updateChart(id, stealthy) {
                 return;
             }
             events[id].data = data;
-            selectedEvent = id;
+            if (!stealthy) {
+                selectedEvent = id;
+            }
             redrawChart();
 
             localStorage.setItem("sgmnow-" + id + "-chart", data.toJSON());
