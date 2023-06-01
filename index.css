@@ -91,9 +91,10 @@ html.stale #timestamp {
 html.offline body {
     background: black;
 }
-html.offline #ticker:before {
-    content: 'You are offline. ';
+html.offline #info:after {
+    content: 'You are offline.';
     color: gray;
+    white-space: pre;
 }
 html.offline #chart.error:after,
 html.offline .error:after {
@@ -162,7 +163,7 @@ html.offline .error:after {
     font-size: 20px;
 }
 
-.info {
+#info {
     font-size: 10px;
     text-align: right;
 }

@@ -276,10 +276,16 @@ function updateTimestamp() {
     stampIssue.date = now.getDate();
 }
 
-function updateTicker() {
+function updateTicker(nextReset) {
     var ticker = document.getElementById("ticker");
-    if (waitUntil == 0 || "onLine" in navigator && !navigator.onLine) {
+    if (nextReset) {
+        ticker.innerHTML = "Resets" + formatDateTime(new Date(nextReset)) + ".";
+    }
+    else if (waitUntil == 0) {
         ticker.innerHTML = "";
+    }
+    else if ("onLine" in navigator && !navigator.onLine) {
+        ticker.innerHTML = "Cannot reload.";
     }
     else if (waitUntil == Infinity) {
         ticker.innerHTML = "Fetching data...";
@@ -432,18 +438,16 @@ function keepFresh() {
         waitTime = 1;
         propagating = false;
         document.documentElement.classList.remove("stale");
+        updateTicker(lastReset + 86400000);
         if (lastLastEdit < lastReset) { /* stored chart data is stale */
             for (var id in events) {
                 events[id].data = false;
                 localStorage.removeItem("sgmnow-" + id + "-chart");
             }
         }
-        updateTicker();
         if (selectedEvent) {
             updateChart(selectedEvent);
         }
-        var nextReset = new Date(lastReset + 86400000); /* for DST debugging */
-        console.log("Next reset is" + formatDateTime(nextReset) + ".");
     }
     else if (
         stampIssue.timezoneOffset != now.getTimezoneOffset() ||
@@ -453,6 +457,7 @@ function keepFresh() {
     ) {
         updateResetOffset();
         updateTimestamp();
+        updateTicker(lastReset + 86400000);
     }
     requestAnimationFrame(keepFresh);
 }
@@ -490,6 +495,7 @@ function initBoxes() {
             setStoredEvent(id);
         }
         updateTimestamp();
+        updateTicker(lastReset + 86400000);
         for (var id in events) {
             events[id].data = JSON.parse(localStorage.getItem("sgmnow-" + id + "-chart"));
         }
