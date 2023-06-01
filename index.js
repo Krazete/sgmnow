@@ -332,7 +332,7 @@ function redrawChart() {
     if (!("getNumberOfRows" in events[selectedEvent].data)) { /* then it's JSON parsed storage */
         if (typeof google == "undefined") {
             console.error("The google object was not loaded. Cannot create DataTable.");
-            document.getElementById("chart").classList.add("error");
+            element.classList.add("error");
             return;
         }
         events[selectedEvent].data = new google.visualization.DataTable(events[selectedEvent].data);
