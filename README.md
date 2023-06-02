@@ -19,8 +19,7 @@ More details of the website's functions and considerations follow below.
   - A timestamp displays when the website was last updated. Staleness is indicated by a sepia filter and a yellow timestamp.
 
 - Any data you load will be saved to local storage for future use.
-  - This allows the website to be used offline.
-    - Offline mode is indicated by a black background and a note next the the timestamp.
+  - This allows the website to be used offline. Offline mode is indicated by a black background and a note next the the timestamp.
   - This makes any subsequent visits significantly faster.
     - A request for new data will be made anyway to ensure fresh data, but the saved data will be shown immediately in the meantime.
 
