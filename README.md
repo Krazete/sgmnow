@@ -4,7 +4,7 @@ A site to quickly check current events and score histories in Skullgirls Mobile.
 
 <img src="preview.png">
 
-Powered by [Google Chart API](https://developers.google.com/chart) and my [SGM Score Cutoffs](https://docs.google.com/spreadsheets/d/1hpmUc__uYo0-tq10tampy7CDIfALn6N5_sMELTBlTOs/edit#gid=814198727) sheet (which is powered by the official [Score Reports](https://forum.skullgirlsmobile.com/threads/845) thread).
+Powered by my [SGM Score Cutoffs](https://docs.google.com/spreadsheets/d/1hpmUc__uYo0-tq10tampy7CDIfALn6N5_sMELTBlTOs/edit#gid=814198727) sheet and [Google Chart API](https://developers.google.com/chart).
 
 I made this to be fast, accessible, and accurate. It should never be out of date and it will tell you itself if it is, even when offline.
 
