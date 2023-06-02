@@ -4,13 +4,30 @@ A site to quickly check current events and score histories in Skullgirls Mobile.
 
 <img src="preview.png">
 
-Powered by my [SGM Score Cutoffs](https://docs.google.com/spreadsheets/d/1hpmUc__uYo0-tq10tampy7CDIfALn6N5_sMELTBlTOs/edit#gid=814198727) sheet and [Google Chart API](https://developers.google.com/chart).
+Powered by [Google Chart API](https://developers.google.com/chart) and my [SGM Score Cutoffs](https://docs.google.com/spreadsheets/d/1hpmUc__uYo0-tq10tampy7CDIfALn6N5_sMELTBlTOs/edit#gid=814198727) sheet (which is powered by the official [Score Reports](https://forum.skullgirlsmobile.com/threads/845) thread).
 
-The website automatically updates at SGM's reset time whether refreshed or not.
-This is possible despite normal API staleness due to an Apps Script trigger which forces the sheet to update at reset time every day, which in turn forces the API to make a fresh request.
+I made this to be fast, accessible, and accurate. It should never be out of date and it will tell you itself if it is, even when offline.
 
-Scheduling errors or delays may occur due to certain game updates or Daylight Saving Time offsets.
+---
 
+More details of the website's functions and considerations follow below.
+
+- The website automatically updates at SGM's reset time whether the page is refreshed or not.
+  - This is possible despite normal API staleness due to an Apps Script trigger which forces the sheet to update at reset time every day, which in turn forces the API to make a fresh request.
+  - The website detects timezone changes, so it won't be delayed by Daylight Saving Time transitions.
+    - The sheet and script are both set to Pacific Time like the game is, so the data source won't be delayed either.
+  - A timestamp displays when the website was last updated. Staleness is indicated by a sepia filter and a yellow timestamp.
+
+- Any data you load will be saved to local storage for future use.
+  - This allows the website to be used offline.
+  - This makes any subsequent visits significantly faster.
+    - A request for new data will be made anyway to ensure fresh data, but the saved data will be shown immediately in the meantime.
+
+- The website is installable as a Progressive Web App.
+  - You can add it to your phone's home screen.
+  - It has my other sites and official links at the bottom, so it's a pretty useful hub of SGM info.
+
+<!-- redundant now
 <details>
 <summary>Concerns</summary>
 There are several ways for this website to fail.
@@ -30,3 +47,4 @@ There are several ways for this website to fail.
   - The site is in local time.
   - The site also uses the built-in Intl library to check if PT is currently PST or PDT.
 </details>
+-->
