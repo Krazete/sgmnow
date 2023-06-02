@@ -20,43 +20,48 @@ var events = {
         row: 3,
         range: "B4:B14,F4:M14", 
         colors: ["#f97d9f", "#d96988", "#b95571", "#99415a", "gold", "#ecbe10", "goldenrod", "#c78c30"],
+        dataID: "",
         data: false
     },
     char: {
         row: 6,
         range: "B15:B25,E15:F25,K15:L25",
         colors: ["#f97d9f", "#b95571", "gold", "goldenrod"],
+        dataID: "",
         data: false
     },
     elem: {
         row: 9,
         range: "B26:B36,E26:F36", 
         colors: ["gold", "silver"],
+        dataID: "",
         data: false
     },
     medi: {
         row: 12,
         range: "B37:B47,D37:D47", 
         colors: ["#f97d9f"],
+        dataID: "",
         data: false
     },
     smym: {
         row: 15,
         range: "B48:B58,E48:F58", 
         colors: ["gold", "silver"],
+        dataID: "",
         data: false
     },
     holi: {
         row: 18,
         range: "B59:B69,D59:H69", 
         colors: ["#f97d9f", "gold", "silver"],
+        dataID: "",
         data: false
     }
 };
 var selectedEvent;
 var now = new Date();
 var resetOffset = 61200000;
-var lastLastEdit = 0;
 var lastEdit = new Date(0);
 var stampIssue = {};
 var waitUntil = 0;
@@ -64,6 +69,14 @@ var waitPrev = 0;
 var waitTime = 1;
 var propagating = false;
 var offlineErrors = [];
+
+function store(key, value) {
+    return localStorage.setItem("sgmnow-" + key, value);
+}
+
+function retrieve(key) {
+    return localStorage.getItem("sgmnow-" + key);
+}
 
 function updateResetOffset() {
     if ("Intl" in window) {
@@ -259,7 +272,7 @@ function setEvent(id, title, contents, active) {
         box.classList.remove("active");
     }
 
-    localStorage.setItem("sgmnow-" + id, JSON.stringify({
+    store(id, JSON.stringify({
         title: title,
         contents: contents,
         active: active
@@ -297,7 +310,6 @@ function updateTicker(nextReset) {
 }
 
 function updateEvents(stealthy) {
-    lastLastEdit = lastEdit;
     sendQuery("a:a", function (data) {
         /* `range=a:a` skips empty cells */
         /* `tq=select A` skips empty rows */
@@ -317,7 +329,7 @@ function updateEvents(stealthy) {
             );
         }
         updateTimestamp();
-        localStorage.setItem("sgmnow-time", lastEdit.getTime());
+        store("time", lastEdit.getTime());
 
         waitUntil = now.getTime() + waitTime * 1000;
         var w = waitPrev;
@@ -353,7 +365,7 @@ function redrawChart() {
     else {
         var chart = new google.visualization.LineChart(element);
     }
-    var title = document.getElementById(selectedEvent).innerText
+    var title = events[selectedEvent].dataID
                 .replace(/Current|Last|\n/g, " ")
                 .replace(/Rift Element: (.+)/g, "Rift Battles: $1 Boss Node")
                 .replace(/(.*SMYM.*):.*/g, "$1")
@@ -393,7 +405,7 @@ function updateChart(id, stealthy) {
     if (box.classList.contains("loading") || box.classList.contains("error")) {
         return;
     }
-    if (events[id].data && !stealthy) {
+    if (events[id].dataID == box.innerText && events[id].data && !stealthy) {
         selectedEvent = id;
         redrawChart();
     }
@@ -406,13 +418,15 @@ function updateChart(id, stealthy) {
                     i--;
                 }
             }
+            events[id].dataID = box.innerText;
             events[id].data = data;
             if (!stealthy) {
                 selectedEvent = id;
             }
             redrawChart();
 
-            localStorage.setItem("sgmnow-" + id + "-chart", data.toJSON());
+            store(id + "-chart-id", box.innerText);
+            store(id + "-chart", data.toJSON());
         }, stealthy ? [] : ["chart"]);
     }
 }
@@ -439,12 +453,6 @@ function keepFresh() {
         propagating = false;
         document.documentElement.classList.remove("stale");
         updateTicker(lastReset + 86400000);
-        if (lastLastEdit < lastReset) { /* stored chart data is stale */
-            for (var id in events) {
-                events[id].data = false;
-                localStorage.removeItem("sgmnow-" + id + "-chart");
-            }
-        }
         if (selectedEvent) {
             updateChart(selectedEvent);
         }
@@ -472,7 +480,7 @@ function initBoxes() {
     }
 
     function setStoredEvent(id) {
-        var e = JSON.parse(localStorage.getItem("sgmnow-" + id));
+        var e = JSON.parse(retrieve(id));
         setEvent(id, e.title, e.contents, e.active);
         document.getElementById(id).classList.remove("loading");
     }
@@ -484,7 +492,7 @@ function initBoxes() {
             requestAnimationFrame(reaffirmEvents);
         }
     }
-    lastEdit = new Date(parseInt(localStorage.getItem("sgmnow-time")) || 0);
+    lastEdit = new Date(parseInt(retrieve("time")) || 0);
     if (lastEdit > 0) {
         var lastReset = now - (now - resetOffset) % 86400000;
         if (lastEdit < lastReset) {
@@ -497,7 +505,8 @@ function initBoxes() {
         updateTimestamp();
         updateTicker(lastReset + 86400000);
         for (var id in events) {
-            events[id].data = JSON.parse(localStorage.getItem("sgmnow-" + id + "-chart"));
+            events[id].dataID = retrieve(id + "-chart-id");
+            events[id].data = JSON.parse(retrieve(id + "-chart"));
         }
         reaffirmEvents();
     }
