@@ -1,3 +1,5 @@
+history.replaceState(null, "", location.origin + location.pathname);
+
 if ("onLine" in navigator && !navigator.onLine) {
     disconnect();
     window.addEventListener("online", e => location.reload()); /* ensure loader.js is loaded */
