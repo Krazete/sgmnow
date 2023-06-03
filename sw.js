@@ -12,7 +12,12 @@ self.addEventListener("activate", function (event) {
 self.addEventListener("fetch", function (event) {
     var request = event.request;
     var url = new URL(request.url);
-    if (request.method !== "GET" || !(url.host == location.host || url.host == "www.gstatic.com")) {
+    if (
+        request.method !== "GET" ||
+        !(url.host == location.host || url.host == "www.gstatic.com") ||
+        url.search ||
+        url.hash
+    ) {
         return;
     }
     var response = Promise.resolve(event.preloadResponse).then(function (r) {
