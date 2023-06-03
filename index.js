@@ -20,45 +20,39 @@ else { /* skip if navigator.onLine is a false positive */
 var events = {
     rift: {
         row: 3,
-        range: "B4:B14,F4:M14", 
+        range: "B4:B14,F4:M14",
         colors: ["#f97d9f", "#d96988", "#b95571", "#99415a", "gold", "#ecbe10", "goldenrod", "#c78c30"],
-        dataID: "",
-        data: false
+        contentID: "", dataID: "", data: false
     },
     char: {
         row: 6,
         range: "B15:B25,E15:F25,K15:L25",
         colors: ["#f97d9f", "#b95571", "gold", "goldenrod"],
-        dataID: "",
-        data: false
+        contentID: "", dataID: "", data: false
     },
     elem: {
         row: 9,
-        range: "B26:B36,E26:F36", 
+        range: "B26:B36,E26:F36",
         colors: ["gold", "silver"],
-        dataID: "",
-        data: false
+        contentID: "", dataID: "", data: false
     },
     medi: {
         row: 12,
-        range: "B37:B47,D37:D47", 
+        range: "B37:B47,D37:D47",
         colors: ["#f97d9f"],
-        dataID: "",
-        data: false
+        contentID: "", dataID: "", data: false
     },
     smym: {
         row: 15,
-        range: "B48:B58,E48:F58", 
+        range: "B48:B58,E48:F58",
         colors: ["gold", "silver"],
-        dataID: "",
-        data: false
+        contentID: "", dataID: "", data: false
     },
     holi: {
         row: 18,
-        range: "B59:B69,D59:H69", 
+        range: "B59:B69,D59:H69",
         colors: ["#f97d9f", "gold", "silver"],
-        dataID: "",
-        data: false
+        contentID: "", dataID: "", data: false
     }
 };
 var selectedEvent;
@@ -274,6 +268,12 @@ function setEvent(id, title, contents, active) {
         box.classList.remove("active");
     }
 
+    if (id == "smym") {
+        events.smym.contentID = "smym";
+    }
+    else if (id in events) { /* not dail */
+        events[id].contentID = contents.join("").toLowerCase().replace(/[^a-z]/g, "");
+    }
     store(id, JSON.stringify({
         title: title,
         contents: contents,
@@ -367,7 +367,7 @@ function redrawChart() {
     else {
         var chart = new google.visualization.LineChart(element);
     }
-    var title = events[selectedEvent].dataID
+    var title = document.getElementById(selectedEvent).innerText
                 .replace(/Current|Last|\n/g, " ")
                 .replace(/Rift Element: (.+)/g, "Rift Battles: $1 Boss Node")
                 .replace(/(.*SMYM.*):.*/g, "$1")
@@ -407,7 +407,7 @@ function updateChart(id, stealthy) {
     if (box.classList.contains("loading") || box.classList.contains("error")) {
         return;
     }
-    if (events[id].dataID == box.innerText && events[id].data && !stealthy) {
+    if (events[id].dataID == events[id].contentID && events[id].data && !stealthy) {
         selectedEvent = id;
         redrawChart();
     }
@@ -420,14 +420,14 @@ function updateChart(id, stealthy) {
                     i--;
                 }
             }
-            events[id].dataID = box.innerText;
+            events[id].dataID = events[id].contentID;
             events[id].data = data;
             if (!stealthy) {
                 selectedEvent = id;
             }
             redrawChart();
 
-            store(id + "-chart-id", box.innerText);
+            store(id + "-chart-id", events[id].dataID);
             store(id + "-chart", data.toJSON());
         }, stealthy ? [] : ["chart"]);
     }
