@@ -20,7 +20,9 @@ self.addEventListener("fetch", function (event) {
     });
     event.respondWith(caches.open("sgmnow").then(function (cache) {
         return response.then(function (r) {
-            cache.put(request, r.clone());
+            if (r.ok || r.type == "opaque") {
+                cache.put(request, r.clone());
+            }
             return r;
         }).catch(function (error) {
             return cache.match(request).then(function (match) {
