@@ -487,7 +487,7 @@ function initBoxes() {
         updateChart(selectedEvent, mode);
         store("mode", mode);
     }
-    mode = parseInt(retrieve("mode") || 0);
+    mode = parseInt(retrieve("mode")) || 0;
     var hard = document.getElementById("tryhard");
     hard.checked = mode;
     hard.addEventListener("change", changeMode);
