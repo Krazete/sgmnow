@@ -395,7 +395,8 @@ function redrawChart() {
         },
         backgroundColor: "transparent",
         colors: events[selectedEvent][mode].colors,
-        lineWidth: 5
+        lineWidth: 5,
+        pointSize: 6
     });
 
     if (reaffirmChart) { /* possible recursion hazard */
