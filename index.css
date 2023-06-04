@@ -68,6 +68,29 @@ a {
 
 /* Chart */
 
+#tryhard {
+    display: none;
+}
+#tryhard + label {
+    background-image: url(./skullheart.png);
+    background-size: contain;
+    box-shadow: 0 0 0 2px black;
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    display: block;
+    margin: 10px;
+    border-radius: 50%;
+    opacity: 0.5;
+    cursor: pointer;
+    z-index: 1;
+}
+#tryhard:checked + label {
+    background-image: url(./skullheart.png), radial-gradient(white 30%, skyblue 70%);
+    box-shadow: 0 0 2px 2px skyblue;
+    opacity: 1;
+}
+
 #chart {
     background-color: #314c73;
     position: relative;

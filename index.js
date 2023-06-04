@@ -20,42 +20,43 @@ else { /* skip if navigator.onLine is a false positive */
 var events = {
     rift: {
         row: 3,
-        range: "B4:B14,F4:M14",
-        colors: ["#f97d9f", "#d96988", "#b95571", "#99415a", "gold", "#ecbe10", "goldenrod", "#c78c30"],
-        contentID: "", dataID: "", data: false
+        contentID: "",
+        0: {dataID: "", data: false, range: "B4:B14,F4:M14", colors: ["#f97d9f", "#d96988", "#b95571", "#99415a", "gold", "#ecbe10", "goldenrod", "#c78c30"]},
+        1: {dataID: "", data: false, range: "B4:E14", colors: ["white", "gray", "black"]}
     },
     char: {
         row: 6,
-        range: "B15:B25,E15:F25,K15:L25",
-        colors: ["#f97d9f", "#b95571", "gold", "goldenrod"],
-        contentID: "", dataID: "", data: false
+        contentID: "",
+        0: {dataID: "", data: false, range: "B15:B25,E15:F25,K15:L25", colors: ["#f97d9f", "#b95571", "gold", "goldenrod"]},
+        1: {dataID: "", data: false, range: "B15:D25,I15:J25", colors: ["white", "silver", "gray", "black"]}
     },
     elem: {
         row: 9,
-        range: "B26:B36,E26:F36",
-        colors: ["gold", "silver"],
-        contentID: "", dataID: "", data: false
+        contentID: "",
+        0: {dataID: "", data: false, range: "B26:B36,E26:F36", colors: ["gold", "silver"]},
+        1: {dataID: "", data: false, range: "B26:D36", colors: ["white", "black"]}
     },
     medi: {
         row: 12,
-        range: "B37:B47,D37:D47",
-        colors: ["#f97d9f"],
-        contentID: "", dataID: "", data: false
+        contentID: "",
+        0: {dataID: "", data: false, range: "B37:B47,D37:D47", colors: ["#f97d9f"]},
+        1: {dataID: "", data: false, range: "B37:D47", colors: ["white", "#f97d9f"]}
     },
     smym: {
         row: 15,
-        range: "B48:B58,E48:F58",
-        colors: ["gold", "silver"],
-        contentID: "", dataID: "", data: false
+        contentID: "",
+        0: {dataID: "", data: false, range: "B48:B58,E48:F58", colors: ["gold", "silver"]},
+        1: {dataID: "", data: false, range: "B48:D58", colors: ["white", "black"]}
     },
     holi: {
         row: 18,
-        range: "B59:B69,D59:H69",
-        colors: ["#f97d9f", "gold", "silver"],
-        contentID: "", dataID: "", data: false
+        contentID: "",
+        0: {dataID: "", data: false, range: "B59:B69,D59:H69", colors: ["#f97d9f", "gold", "silver"]},
+        1: {dataID: "", data: false, range: "B59:F69", colors: ["white", "#f97d9f"]}
     }
 };
 var selectedEvent;
+var mode = 0;
 var now = new Date();
 var resetOffset = 61200000;
 var lastEdit = new Date(0);
@@ -351,17 +352,17 @@ function redrawChart() {
     element.classList.remove("error");
 
     var reaffirmChart = false;
-    if (!("getNumberOfRows" in events[selectedEvent].data)) { /* then it's JSON parsed storage */
+    if (!("getNumberOfRows" in events[selectedEvent][mode].data)) { /* then it's JSON parsed storage */
         if (typeof google == "undefined") {
             console.error("The google object was not loaded. Cannot create DataTable.");
             element.classList.add("error");
             return;
         }
-        events[selectedEvent].data = new google.visualization.DataTable(events[selectedEvent].data);
+        events[selectedEvent][mode].data = new google.visualization.DataTable(events[selectedEvent][mode].data);
         reaffirmChart = true;
     }
 
-    if (events[selectedEvent].data.getNumberOfRows() <= 1) {
+    if (events[selectedEvent][mode].data.getNumberOfRows() <= 1) {
         var chart = new google.visualization.ColumnChart(element);
     }
     else {
@@ -373,7 +374,7 @@ function redrawChart() {
                 .replace(/(.*SMYM.*):.*/g, "$1")
                 .replace(/PF/g, "Prize Fight");
     var thin = innerWidth < 650;
-    chart.draw(events[selectedEvent].data, {
+    chart.draw(events[selectedEvent][mode].data, {
         chartArea: thin ? {left: "20%", width: "75%"} : {},
         title: title,
         titleTextStyle: {color: "white"},
@@ -393,7 +394,7 @@ function redrawChart() {
             minorGridlines: {color: "#263b5a"}
         },
         backgroundColor: "transparent",
-        colors: events[selectedEvent].colors,
+        colors: events[selectedEvent][mode].colors,
         lineWidth: 5
     });
 
@@ -407,12 +408,12 @@ function updateChart(id, stealthy) {
     if (box.classList.contains("loading") || box.classList.contains("error")) {
         return;
     }
-    if (events[id].dataID == events[id].contentID && events[id].data && !stealthy) {
+    if (events[id][mode].dataID == events[id].contentID && events[id][mode].data && !stealthy) {
         selectedEvent = id;
         redrawChart();
     }
     else {
-        sendQuery(events[id].range, function (data) {
+        sendQuery(events[id][mode].range, function (data) {
             for (var i = 0; i < data.getNumberOfColumns(); i++) {
                 var typ = data.getColumnType(i);
                 if (typ != "date" && typ != "number") {
@@ -420,15 +421,15 @@ function updateChart(id, stealthy) {
                     i--;
                 }
             }
-            events[id].dataID = events[id].contentID;
-            events[id].data = data;
+            events[id][mode].dataID = events[id].contentID;
+            events[id][mode].data = data;
             if (!stealthy) {
                 selectedEvent = id;
             }
             redrawChart();
 
-            store(id + "-chart-id", events[id].dataID);
-            store(id + "-chart", data.toJSON());
+            store(id + ["", "-x"][mode] + "-chart-id", events[id].contentID);
+            store(id + ["", "-x"][mode] + "-chart", data.toJSON());
         }, stealthy ? [] : ["chart"]);
     }
 }
@@ -481,6 +482,16 @@ function initBoxes() {
         box.addEventListener("click", clickBox);
     }
 
+    function changeMode() {
+        mode = +this.checked;
+        updateChart(selectedEvent);
+        store("mode", mode);
+    }
+    mode = parseInt(retrieve("mode") || 0);
+    var hard = document.getElementById("tryhard");
+    hard.checked = mode;
+    hard.addEventListener("change", changeMode);
+
     function setStoredEvent(id) {
         var e = JSON.parse(retrieve(id));
         setEvent(id, e.title, e.contents, e.active);
@@ -507,8 +518,10 @@ function initBoxes() {
         updateTimestamp();
         updateTicker(lastReset + 86400000);
         for (var id in events) {
-            events[id].dataID = retrieve(id + "-chart-id");
-            events[id].data = JSON.parse(retrieve(id + "-chart"));
+            events[id][0].dataID = retrieve(id + "-chart-id");
+            events[id][0].data = JSON.parse(retrieve(id + "-chart"));
+            events[id][1].dataID = retrieve(id + "-x-chart-id");
+            events[id][1].data = JSON.parse(retrieve(id + "-x-chart"));
         }
         reaffirmEvents();
     }
