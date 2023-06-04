@@ -62,8 +62,8 @@ var resetOffset = 61200000;
 var lastEdit = new Date(0);
 var stampIssue = {};
 var waitUntil = 0;
-var waitPrev = 0;
-var waitTime = 1;
+var waitPrev = 34;
+var waitTime = -21;
 var propagating = false;
 var offlineErrors = [];
 
@@ -334,7 +334,7 @@ function updateEvents(stealthy) {
         updateTimestamp();
         store("time", lastEdit.getTime());
 
-        waitUntil = now.getTime() + waitTime * 1000;
+        waitUntil = now.getTime() + Math.abs(waitTime || 1) * 1000;
         var w = waitPrev;
         waitPrev = waitTime;
         waitTime += w;
@@ -523,7 +523,9 @@ function initBoxes() {
             events[id][1].dataID = retrieve(id + "-x-chart-id");
             events[id][1].data = JSON.parse(retrieve(id + "-x-chart"));
         }
-        reaffirmEvents();
+        if (lastEdit >= lastReset) { /* if stale, skip and let keepFresh do it */
+            reaffirmEvents();
+        }
     }
 }
 
