@@ -399,21 +399,21 @@ function redrawChart() {
     });
 
     if (reaffirmChart) { /* possible recursion hazard */
-        updateChart(selectedEvent, true);
+        updateChart(selectedEvent, mode, true);
     }
 }
 
-function updateChart(id, stealthy) {
+function updateChart(id, m, stealthy) {
     var box = document.getElementById(id);
     if (box.classList.contains("loading") || box.classList.contains("error")) {
         return;
     }
-    if (events[id][mode].dataID == events[id].contentID && events[id][mode].data && !stealthy) {
+    if (events[id][m].dataID == events[id].contentID && events[id][m].data && !stealthy) {
         selectedEvent = id;
         redrawChart();
     }
     else {
-        sendQuery(events[id][mode].range, function (data) {
+        sendQuery(events[id][m].range, function (data) {
             for (var i = 0; i < data.getNumberOfColumns(); i++) {
                 var typ = data.getColumnType(i);
                 if (typ != "date" && typ != "number") {
@@ -421,15 +421,15 @@ function updateChart(id, stealthy) {
                     i--;
                 }
             }
-            events[id][mode].dataID = events[id].contentID;
-            events[id][mode].data = data;
+            events[id][m].dataID = events[id].contentID;
+            events[id][m].data = data;
             if (!stealthy) {
                 selectedEvent = id;
             }
             redrawChart();
 
-            store(id + ["", "-x"][mode] + "-chart-id", events[id].contentID);
-            store(id + ["", "-x"][mode] + "-chart", data.toJSON());
+            store(id + ["", "-x"][m] + "-chart-id", events[id].contentID);
+            store(id + ["", "-x"][m] + "-chart", data.toJSON());
         }, stealthy ? [] : ["chart"]);
     }
 }
@@ -457,7 +457,7 @@ function keepFresh() {
         document.documentElement.classList.remove("stale");
         updateTicker(lastReset + 86400000);
         if (selectedEvent) {
-            updateChart(selectedEvent);
+            updateChart(selectedEvent, mode);
         }
     }
     else if (
@@ -475,7 +475,7 @@ function keepFresh() {
 
 function initBoxes() {
     function clickBox() {
-        updateChart(this.id);
+        updateChart(this.id, mode);
     }
     for (var id in events) {
         var box = document.getElementById(id);
@@ -484,7 +484,7 @@ function initBoxes() {
 
     function changeMode() {
         mode = +this.checked;
-        updateChart(selectedEvent);
+        updateChart(selectedEvent, mode);
         store("mode", mode);
     }
     mode = parseInt(retrieve("mode") || 0);
