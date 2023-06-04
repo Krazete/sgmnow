@@ -451,8 +451,8 @@ function keepFresh() {
     }
     else if (propagating) {
         waitUntil = 0;
-        waitPrev = 0;
-        waitTime = 1;
+        waitPrev = 34;
+        waitTime = -21;
         propagating = false;
         document.documentElement.classList.remove("stale");
         updateTicker(lastReset + 86400000);
