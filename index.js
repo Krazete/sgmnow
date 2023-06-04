@@ -484,7 +484,9 @@ function initBoxes() {
 
     function changeMode() {
         mode = +this.checked;
-        updateChart(selectedEvent, mode);
+        if (selectedEvent) {
+            updateChart(selectedEvent, mode);
+        }
         store("mode", mode);
     }
     mode = parseInt(retrieve("mode")) || 0;
