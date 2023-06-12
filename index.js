@@ -6,10 +6,12 @@ var events = {
     "smym": {"row": 13, "range": "B47:B57,E47:F57", "data": false, "colors": ["gold", "silver"]},
     "holi": {"row": 16, "range": "B58:B68,D58:H68", "data": false, "colors": ["#ee4f87", "gold", "silver"]}
 };
-var ce, lastCheck, checkBuffer = 0;
+var selectedEvent;
+var lastCheck = 0;
+var updateBuffer = 0;
 
 google.charts.load("current", {"packages": ["corechart"]});
-google.charts.setOnLoadCallback(checkNow);
+google.charts.setOnLoadCallback(keepFresh);
 
 function sendQuery(q, f, ids) {
     var elements = ids.map(id => document.getElementById(id));
@@ -98,12 +100,56 @@ function setEvent(id, title, contents, active) {
     }
 }
 
-    var sheetTime = document.getElementById("sheet-time");
-function checkNow() {
-    if (checkBuffer > 0) {
+function daysSinceLocalEpoch(date) {
+    var offset = date.getTimezoneOffset() * 60000;
+    var offsetDate = date - offset;
+    return Math.floor(offsetDate / 86400000);
+}
+
+function formatTime(date) {
+    if ("Intl" in window) {
+        return Intl.DateTimeFormat([], {"timeStyle": "short"}).format(date);
+    }
+    return date.getHours() + ":" + date.getMinutes();
+}
+
+function formatDate(date) {
+    if ("Intl" in window) {
+        return Intl.DateTimeFormat([], {"dateStyle": "short"}).format(date);
+    }
+    return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
+}
+
+function updateTimestamp(date) {
+    var today = daysSinceLocalEpoch(new Date());
+    var day = daysSinceLocalEpoch(date);
+
+    var timestamp = document.getElementById("timestamp");
+    var time = formatTime(date);
+    var addendum = " ";
+    if (day == today) {
+        addendum += "today";
+    }
+    else {
+        if (day == today - 1) {
+            addendum += "yesterday";
+        }
+        else if (day == today + 1) {
+            addendum += "tomorrow";
+        }
+        else {
+            addendum += "on " + formatDate(date);
+        }
+    }
+    addendum += " at " + time;
+    timestamp.innerHTML = addendum;
+}
+
+function updateEvents() {
+    if (updateBuffer > 0) {
         return;
     }
-    checkBuffer = 2;
+    updateBuffer = 2;
     sendQuery("1:1", function (data) {
         var contents = [];
         var n = data.getNumberOfColumns();
@@ -116,7 +162,7 @@ function checkNow() {
             contents,
             true
         );
-        checkBuffer--;
+        updateBuffer--;
     }, ["dail"]);
     sendQuery("a:a", function (data) {
         /* `range=a:a` skips empty cells */
@@ -129,10 +175,9 @@ function checkNow() {
                 data.getValue(events[id].row + 2, 0) > 0
             );
         }
-        lastCheck = new Date(data.getValue(0, 0) + "-17:00");
-        var sheetTime = document.getElementById("sheet-time");
-        sheetTime.innerHTML = ", last updated on " + lastCheck;
-        checkBuffer--;
+        lastCheck = new Date(data.getValue(0, 0) + "-17:00"); /* tz?? */
+        updateTimestamp(lastCheck);
+        updateBuffer--;
     }, Object.keys(events));
 }
 
@@ -140,18 +185,18 @@ function checkNow() {
 
 function redraw() {
     var element = document.getElementById("chart");
-    if (events[ce].data.getNumberOfRows() <= 1) {
+    if (events[selectedEvent].data.getNumberOfRows() <= 1) {
         var chart = new google.visualization.ColumnChart(element);
     }
     else {
         var chart = new google.visualization.LineChart(element);
     }
-    var title = document.getElementById(ce).innerText
+    var title = document.getElementById(selectedEvent).innerText
                 .replace(/Current|Last|\n/g, " ")
                 .replace(/Rift Element: (.+)/g, "Rift Battles: $1 Boss Node")
                 .replace(/(.*SMYM.*):.*/g, "$1")
                 .replace(/PF/g, "Prize Fight");
-    chart.draw(events[ce].data, {
+    chart.draw(events[selectedEvent].data, {
         title: title,
         titleTextStyle: {color: "white"},
         legend: {textStyle: {color: "white"}},
@@ -166,14 +211,14 @@ function redraw() {
             minorGridlines: {color: "#263b5a"}
         },
         backgroundColor: "transparent",
-        colors: events[ce].colors,
+        colors: events[selectedEvent].colors,
         lineWidth: 5
     });
 }
 
 function checkChart(id) {
     if (events[id].data) {
-        ce = id;
+        selectedEvent = id;
         redraw(id);
     }
     else {
@@ -198,18 +243,22 @@ function keepFresh() {
     var now = Date.now();
     var refreshTime = now - now % 86400000 - 25200000; /* 10am PT */
     if (lastCheck < refreshTime) {
+        if (lastCheck > 0) {
+            document.documentElement.classList.add("stale");
+        }
         for (var id in events) {
             events[id].data = false;
         }
-        checkNow();
-        if (ce) {
+        updateEvents();
+        if (selectedEvent) {
             redraw();
         }
     }
+    else {
+        document.documentElement.classList.remove("stale");
+    }
     requestAnimationFrame(keepFresh);
 }
-
-keepFresh();
 
 function onClick(e) {
     if (typeof e.target != "undefined") {

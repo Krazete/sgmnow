@@ -56,6 +56,13 @@ a {
     cursor: default;
 }
 
+.stale #timestamp {
+    color: yellow;
+}
+.stale #timestamp:after {
+    content: ' \21bb';
+}
+
 /* Charts */
 
 #chart {
@@ -113,6 +120,7 @@ a {
 
 .error {
     background-color: black;
+    box-shadow: none;
     cursor: not-allowed;
 }
 .error:after {
