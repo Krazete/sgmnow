@@ -19,37 +19,37 @@ else { /* skip if navigator.onLine is a false positive */
 
 var events = {
     rift: {
-        row: 3,
+        rowPattern: /Rift Element:/,
         contentID: "",
         0: {dataID: "", data: false, range: "B4:B14,F4:M14", colors: ["#f97d9f", "#d96988", "#b95571", "#99415a", "gold", "#ecbe10", "goldenrod", "#c78c30"]},
         1: {dataID: "", data: false, range: "B4:E14", colors: ["white", "gray", "black"]}
     },
     char: {
-        row: 6,
+        rowPattern: /Character PF:/,
         contentID: "",
         0: {dataID: "", data: false, range: "B15:B25,E15:F25,K15:L25", colors: ["#f97d9f", "#b95571", "gold", "goldenrod"]},
         1: {dataID: "", data: false, range: "B15:D25,I15:J25", colors: ["white", "silver", "gray", "black"]}
     },
     elem: {
-        row: 9,
+        rowPattern: /Elemental PF:/,
         contentID: "",
         0: {dataID: "", data: false, range: "B26:B36,E26:F36", colors: ["gold", "silver"]},
         1: {dataID: "", data: false, range: "B26:D36", colors: ["white", "black"]}
     },
     medi: {
-        row: 12,
+        rowPattern: /Medici PF:/,
         contentID: "",
         0: {dataID: "", data: false, range: "B37:B47,D37:D47", colors: ["#f97d9f"]},
         1: {dataID: "", data: false, range: "B37:D47", colors: ["white", "#f97d9f"]}
     },
     smym: {
-        row: 15,
+        rowPattern: /SMYM PF:/,
         contentID: "",
         0: {dataID: "", data: false, range: "B48:B58,E48:F58", colors: ["gold", "silver"]},
         1: {dataID: "", data: false, range: "B48:D58", colors: ["white", "black"]}
     },
     holi: {
-        row: 18,
+        rowPattern: /Monthly PF:/,
         contentID: "",
         0: {dataID: "", data: false, range: "B59:B69,D59:H69", colors: ["#f97d9f", "gold", "silver"]},
         1: {dataID: "", data: false, range: "B59:F69", colors: ["white", "#f97d9f"]}
@@ -312,6 +312,18 @@ function updateTicker(nextReset) {
     }
 }
 
+function getRowStart(data, id) {
+    /* because Chart API is inconsistent about considering images as empty cells */
+    var n = data.getNumberOfRows();
+    for (var i = 0; i < n; i++) {
+        if (events[id].rowPattern.test(data.getValue(i, 0))) {
+            return i;
+        }
+    }
+    console.error("Cannot find row start:", id);
+    return -1;
+}
+
 function updateEvents(stealthy) {
     sendQuery("a:a", function (data) {
         /* `range=a:a` skips empty cells */
@@ -324,11 +336,12 @@ function updateEvents(stealthy) {
             true
         );
         for (var id in events) {
+            var rowStart = getRowStart(data, id);
             setEvent(
                 id,
-                data.getValue(events[id].row, 0),
-                [data.getValue(events[id].row + 1, 0)],
-                data.getValue(events[id].row + 2, 0) > 0
+                data.getValue(rowStart, 0),
+                [data.getValue(rowStart + 1, 0)],
+                data.getValue(rowStart + 2, 0) > 0
             );
         }
         updateTimestamp();
