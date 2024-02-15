@@ -51,8 +51,8 @@ var events = {
     holi: {
         rowPattern: /Monthly PF:/,
         contentID: "",
-        0: {dataID: "", data: false, range: "B59:B69,D59:H69", colors: ["#f97d9f", "gold", "silver"]},
-        1: {dataID: "", data: false, range: "B59:F69", colors: ["white", "#f97d9f"]}
+        0: {dataID: "", data: false, range: "B59:B69,D59:H69", colors: ["#f97d9f", "gold", "silver", "black"]},
+        1: {dataID: "", data: false, range: "B59:F69", colors: ["white", "#f97d9f", "gold"]}
     }
 };
 var selectedEvent;
