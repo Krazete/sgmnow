@@ -20,6 +20,10 @@ a {
     display: flex;
     flex-wrap: wrap;
 }
+.flex.hvs {
+    flex-wrap: wrap-reverse;
+    flex-direction: row-reverse;
+}
 .flex > * {
     flex: 1;
 }
@@ -213,6 +217,7 @@ html.offline .error:after {
 .flex.me > a,
 .flex.hvs > a {
     background-color: #263b5a;
+    white-space: nowrap;
     padding: 6px;
     margin: 1px;
     border-radius: 5px;
