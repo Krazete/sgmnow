@@ -48,11 +48,17 @@ var events = {
         0: {dataID: "", data: false, range: "B48:B58,E48:F58", colors: ["gold", "silver"]},
         1: {dataID: "", data: false, range: "B48:D58", colors: ["white", "black"]}
     },
+    star: {
+        rowPattern: /Seeing Stars PF:/,
+        contentID: "",
+        0: {dataID: "", data: false, range: "B59:B69,E59:F69", colors: ["gold", "silver"]},
+        1: {dataID: "", data: false, range: "B59:D69", colors: ["white", "black"]}
+    },
     holi: {
         rowPattern: /Monthly PF:/,
         contentID: "",
-        0: {dataID: "", data: false, range: "B59:B69,D59:H69", colors: ["#f97d9f", "gold", "silver", "black"]},
-        1: {dataID: "", data: false, range: "B59:F69", colors: ["white", "#f97d9f", "gold"]}
+        0: {dataID: "", data: false, range: "B70:B80,D70:H80", colors: ["#f97d9f", "gold", "silver", "black"]},
+        1: {dataID: "", data: false, range: "B70:F80", colors: ["white", "#f97d9f", "gold"]}
     }
 };
 var selectedEvent;
@@ -257,6 +263,10 @@ function setEvent(id, title, contents, active) {
             var icon = getIcon("BB-Frame1", "Blockbuster");
             boxContent.appendChild(icon);
         }
+        else if (id == "star") {
+            var icon = getIcon("star01", "Star");
+            boxContent.appendChild(icon);
+        }
         boxContent.innerHTML += content;
         boxContents.appendChild(boxContent);
     }
@@ -269,8 +279,8 @@ function setEvent(id, title, contents, active) {
         box.classList.remove("active");
     }
 
-    if (id == "smym") {
-        events.smym.contentID = "smym";
+    if (["smym", "star"].includes(id)) {
+        events[id].contentID = id;
     }
     else if (id in events) { /* not dail */
         events[id].contentID = contents.join("").toLowerCase().replace(/[^a-z]/g, "");
@@ -384,9 +394,13 @@ function redrawChart() {
     var title = document.getElementById(selectedEvent).innerText
                 .replace(/Current|Last|\n/g, " ")
                 .replace(/Rift Element: (.+)/g, "Rift Battles: $1 Boss Node")
-                .replace(/(.*SMYM.*):.*/g, "$1")
+                .replace(/SMYM/g, "Show Me Your Moves")
+                .replace(/:.*(A|Ina)ctive/g, "")
                 .replace(/PF/g, "Prize Fight");
     var thin = innerWidth < 650;
+    if (events[selectedEvent][mode].data.getNumberOfColumns() <= 0) { /* 0 columns gives error without clearing chart */
+        events[selectedEvent][mode].data.addColumn("number"); /* 1 column clears chart first before giving error */
+    }
     chart.draw(events[selectedEvent][mode].data, {
         chartArea: thin ? {left: "20%", width: "75%"} : {},
         title: title,
