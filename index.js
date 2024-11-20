@@ -77,8 +77,8 @@ function store(key, value) {
     return localStorage.setItem("sgmnow-" + key, value);
 }
 
-function retrieve(key, value) { /* value = default (if null) */
-    return localStorage.getItem("sgmnow-" + key) || value || null;
+function retrieve(key) {
+    return localStorage.getItem("sgmnow-" + key);
 }
 
 function updateResetOffset() {
@@ -517,13 +517,13 @@ function initBoxes() {
         }
         store("mode", mode);
     }
-    mode = parseInt(retrieve("mode", 0));
+    mode = parseInt(retrieve("mode")) || 0;
     var hard = document.getElementById("tryhard");
     hard.checked = mode;
     hard.addEventListener("change", changeMode);
 
     function setStoredEvent(id) {
-        var e = JSON.parse(retrieve(id, "{}"));
+        var e = JSON.parse(retrieve(id)) || {title: "???", contents: ["???"], active: false};
         setEvent(id, e.title, e.contents, e.active);
         document.getElementById(id).classList.remove("loading");
     }
@@ -535,7 +535,7 @@ function initBoxes() {
             requestAnimationFrame(reaffirmEvents);
         }
     }
-    lastEdit = new Date(parseInt(retrieve("time", 0)));
+    lastEdit = new Date(parseInt(retrieve("time")) || 0);
     if (lastEdit > 0) {
         var lastReset = now - (now - resetOffset) % 86400000;
         if (lastEdit < lastReset) {
