@@ -226,9 +226,9 @@ function getZ() { /* too robust tbh; this won't always match sheet time but w/e 
     return sign + h + ":" + m;
 }
 
-function getIcon(name, alt) {
+function getIcon(name, alt, folder) {
     var img = new Image();
-    img.src = "https://krazete.github.io/sgm/image/official/" + name + ".png";
+    img.src = "https://krazete.github.io/" + (folder || "sgmnow") + "/" + name + ".png";
     img.alt = alt;
     return img;
 }
@@ -246,25 +246,23 @@ function setEvent(id, title, contents, active) {
         var boxContent = document.createElement("div");
         if (id == "dail" || id == "char") {
             var character = content.replace(/-F/, "f").replace(/\s|\./g, "");
-            var icon = getIcon(character + "_MasteryIcon", content);
+            var icon = getIcon(character + "_MasteryIcon", content, "sgm/image/official");
             boxContent.appendChild(icon);
         }
         else if (id == "rift" || id == "elem") {
-            var icon = getIcon("ElementalIcon" + content, content);
+            var icon = getIcon("ElementalIcon" + content, content, "sgm/image/official");
             boxContent.appendChild(icon);
         }
         else if (id == "medi") {
-            var icon = new Image();
-            icon.src = "https://krazete.github.io/sgmtree/img/SoftCurrency.png";
-            icon.alt = "Canopy Coin";
+            var icon = getIcon("SoftCurrency", "Canopy Coin", "sgmtree/img");
             boxContent.appendChild(icon);
         }
         else if (id == "smym") {
-            var icon = getIcon("BB-Frame1", "Blockbuster");
+            var icon = getIcon("Collection_Tab_Icon_Moves", "Blockbuster");
             boxContent.appendChild(icon);
         }
         else if (id == "star") {
-            var icon = getIcon("star01", "Star");
+            var icon = getIcon("Collection_Tab_Icon_Assists", "Star");
             boxContent.appendChild(icon);
         }
         boxContent.innerHTML += content;
