@@ -228,7 +228,11 @@ function getZ() { /* too robust tbh; this won't always match sheet time but w/e 
 
 function getIcon(name, alt, folder) {
     var img = new Image();
-    img.src = "https://krazete.github.io/" + (folder || "sgmnow") + "/" + name + ".png";
+    img.src = [
+        "https://krazete.github.io",
+        folder || "sgmnow",
+        name + ".png"
+    ].join("/");
     img.alt = alt;
     return img;
 }
