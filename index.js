@@ -51,7 +51,7 @@ var events = {
     star: {
         rowPattern: /Seeing Stars PF:/,
         contentID: "",
-        0: {dataID: "", data: false, range: "B59:B69,D59:E69", colors: ["white", "#f97d9f"]},
+        0: {dataID: "", data: false, range: "B59:B69,D59:E69", colors: ["black", "#f97d9f"]},
         1: {dataID: "", data: false, range: "B59:D69", colors: ["white", "black"]}
     },
     holi: {
